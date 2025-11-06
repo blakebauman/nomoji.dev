@@ -1,0 +1,11 @@
+# Development Environment Variables
+# Copy this file to .dev.vars for local development
+
+# Optional: Set default environment
+ENVIRONMENT=development
+
+# Note: KV namespaces are configured in wrangler.toml
+# Create your KV namespaces with:
+# wrangler kv:namespace create "PREFERENCES"
+# wrangler kv:namespace create "PREFERENCES" --preview
+

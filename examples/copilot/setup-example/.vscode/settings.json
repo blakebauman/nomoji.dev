@@ -1,0 +1,12 @@
+{
+  "github.copilot.advanced": {
+    "customInstructions": "EMOJI USAGE RULES: Do not use emojis in code, documentation, console output, CLI tools, logging, or commit messages. Use clear, professional language only. Emojis reduce accessibility, create parsing issues, and appear unprofessional. This rule applies to: markdown files, README files, console.log/error/warn statements, CLI tool output, application logs, error messages, code comments, and git commit messages."
+  },
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": false,
+    "markdown": true,
+    "scminput": false
+  }
+}
+

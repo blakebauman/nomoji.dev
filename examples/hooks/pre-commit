@@ -1,0 +1,80 @@
+#!/bin/bash
+# nomoji.dev pre-commit hook
+# Place in .git/hooks/pre-commit and chmod +x
+
+set -e
+
+NOMOJI_API="https://nomoji.dev/api"
+USER_ID="${NOMOJI_USER_ID:-default}"
+
+echo "nomoji.dev: Checking staged files for emojis..."
+
+# Get list of staged files
+staged_files=$(git diff --cached --name-only --diff-filter=ACM)
+
+# Counter for files with emojis
+failed=0
+total_emojis=0
+
+# Check each staged file
+for file in $staged_files; do
+  # Skip binary files and certain file types
+  if [ -f "$file" ] && file "$file" | grep -qv "binary"; then
+    # Read file content
+    content=$(cat "$file")
+    
+    # Skip empty files
+    if [ -z "$content" ]; then
+      continue
+    fi
+    
+    # Analyze with nomoji.dev API
+    result=$(curl -s -X POST "$NOMOJI_API/analyze" \
+      -H "Content-Type: application/json" \
+      -d "{\"text\":$(echo "$content" | jq -Rs .)}" 2>/dev/null)
+    
+    # Check if request was successful
+    if [ $? -ne 0 ]; then
+      echo "Warning: Failed to check $file (API request failed)"
+      continue
+    fi
+    
+    # Parse result
+    has_emojis=$(echo "$result" | jq -r '.data.hasEmojis' 2>/dev/null)
+    
+    if [ "$has_emojis" = "true" ]; then
+      emoji_count=$(echo "$result" | jq -r '.data.count')
+      unique_emojis=$(echo "$result" | jq -r '.data.unique | join(", ")')
+      
+      echo "❌ $file contains $emoji_count emoji(s): $unique_emojis"
+      
+      failed=$((failed + 1))
+      total_emojis=$((total_emojis + emoji_count))
+    else
+      echo "✓ $file"
+    fi
+  fi
+done
+
+# Report results
+echo ""
+if [ $failed -gt 0 ]; then
+  echo "=================================="
+  echo "❌ COMMIT REJECTED"
+  echo "=================================="
+  echo "Found $total_emojis emoji(s) in $failed file(s)"
+  echo ""
+  echo "Please remove emojis from your code before committing."
+  echo "Run 'nomoji.dev/docs/removing-emojis' for help."
+  echo ""
+  echo "To bypass this check (not recommended):"
+  echo "  git commit --no-verify"
+  echo ""
+  exit 1
+else
+  echo "=================================="
+  echo "✓ All files are emoji-free"
+  echo "=================================="
+  exit 0
+fi
+

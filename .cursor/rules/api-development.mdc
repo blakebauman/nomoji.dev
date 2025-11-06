@@ -1,0 +1,445 @@
+---
+title: API Development Standards
+version: 1.0.0
+priority: high
+description: Standards for building and maintaining REST APIs
+---
+
+# API Development Standards
+
+This project provides a REST API. Follow these standards for consistency and reliability.
+
+## API Design Principles
+
+### RESTful Conventions
+Follow REST principles:
+- Use HTTP methods correctly (GET, POST, PUT, DELETE)
+- Use plural nouns for resource names
+- Use hierarchical URLs for relationships
+- Return appropriate status codes
+
+### URL Structure
+Design clean, predictable URLs:
+```
+GET    /api/config/:userId          # Get user config
+POST   /api/config/:userId          # Update config
+DELETE /api/config/:userId          # Delete config
+POST   /api/config/:userId/preset/:preset  # Apply preset
+```
+
+### Versioning
+Include version in URLs when needed:
+```
+/api/v1/config/:userId
+/api/v2/config/:userId
+```
+
+Current API is v1, embedded in path structure.
+
+## Request Handling
+
+### Parameter Validation
+Validate all parameters using middleware:
+```typescript
+app.get(
+  "/api/config/:userId",
+  validateUserId(),        // Validate userId param
+  async (c) => {
+    // Handler logic
+  }
+);
+```
+
+### Body Validation
+Validate request bodies:
+```typescript
+app.post(
+  "/api/config/:userId",
+  validateConfigBody(),    // Validate JSON body
+  async (c) => {
+    const body = c.get("validatedConfig");
+    // Use validated body
+  }
+);
+```
+
+### Query Parameters
+Handle query parameters safely:
+```typescript
+const page = parseInt(c.req.query("page") ?? "1", 10);
+const limit = Math.min(
+  parseInt(c.req.query("limit") ?? "10", 10),
+  100
+);
+```
+
+## Response Formatting
+
+### Standard Response
+Use consistent response structure:
+```typescript
+interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+```
+
+### Success Response
+```typescript
+const response: ApiResponse<NomojiConfig> = {
+  success: true,
+  data: config,
+  message: "Configuration updated successfully",
+};
+return c.json(response, 200);
+```
+
+### Error Response
+```typescript
+const response: ApiResponse = {
+  success: false,
+  error: "Configuration not found",
+};
+return c.json(response, 404);
+```
+
+## HTTP Status Codes
+
+### Use Appropriate Codes
+Return meaningful status codes:
+
+**2xx Success:**
+- 200 OK: Request succeeded
+- 201 Created: Resource created
+- 204 No Content: Success with no response body
+
+**4xx Client Errors:**
+- 400 Bad Request: Invalid request
+- 401 Unauthorized: Authentication required
+- 403 Forbidden: Permission denied
+- 404 Not Found: Resource not found
+- 429 Too Many Requests: Rate limit exceeded
+
+**5xx Server Errors:**
+- 500 Internal Server Error: Unexpected error
+- 503 Service Unavailable: Temporary downtime
+
+### Status Code Examples
+```typescript
+// Success
+return c.json(response, 200);
+
+// Created
+return c.json(response, 201);
+
+// Bad request
+return c.json({ success: false, error: "Invalid input" }, 400);
+
+// Not found
+return c.json({ success: false, error: "Not found" }, 404);
+
+// Server error
+return c.json({ success: false, error: "Internal error" }, 500);
+```
+
+## Middleware
+
+### Middleware Chain
+Apply middleware in correct order:
+```typescript
+app.post(
+  "/api/config/:userId",
+  validateUserId(),          // 1. Validate params
+  RateLimitPresets.writes,   // 2. Rate limit
+  validateConfigBody(),      // 3. Validate body
+  async (c) => {            // 4. Handler
+    // Implementation
+  }
+);
+```
+
+### Custom Middleware
+Create reusable middleware:
+```typescript
+export function customMiddleware() {
+  return async (c: Context, next: Next) => {
+    // Pre-processing
+    const startTime = Date.now();
+    
+    await next();
+    
+    // Post-processing
+    const duration = Date.now() - startTime;
+    c.header("X-Response-Time", `${duration}ms`);
+  };
+}
+```
+
+## Caching
+
+### Cache Headers
+Set appropriate cache headers:
+```typescript
+// Public, cacheable
+c.header("Cache-Control", "public, max-age=3600");
+
+// Private, user-specific
+c.header("Cache-Control", "private, max-age=300");
+
+// No cache
+c.header("Cache-Control", "no-cache, no-store, must-revalidate");
+```
+
+### Cache Middleware
+Use caching middleware:
+```typescript
+app.get(
+  "/api/config/:userId",
+  cacheMiddleware(CachePresets.short),  // 5 minutes
+  async (c) => {
+    // Handler
+  }
+);
+```
+
+### Cache Presets
+Available cache durations:
+- `CachePresets.short`: 5 minutes
+- `CachePresets.medium`: 1 hour
+- `CachePresets.long`: 24 hours
+
+## Rate Limiting
+
+### Apply Rate Limits
+Protect endpoints with rate limiting:
+```typescript
+// Moderate: 100 requests/minute
+app.use("/api/*", RateLimitPresets.moderate);
+
+// Strict for writes: 10 requests/minute
+app.post("/api/config/*", RateLimitPresets.writes);
+```
+
+### Rate Limit Response
+Return 429 when rate limited:
+```typescript
+return c.json({
+  success: false,
+  error: "Rate limit exceeded",
+  retryAfter: 60,
+}, 429);
+```
+
+## Error Handling
+
+### Try-Catch Blocks
+Wrap async operations:
+```typescript
+try {
+  const config = await getConfig(userId);
+  return c.json({ success: true, data: config });
+} catch (error) {
+  logger.error("Failed to get config", error as Error);
+  return c.json({
+    success: false,
+    error: "Failed to retrieve configuration",
+  }, 500);
+}
+```
+
+### Global Error Handler
+Implement centralized error handling:
+```typescript
+app.onError(errorHandler());
+```
+
+### Specific Error Types
+Handle different error types:
+```typescript
+catch (error) {
+  if (error instanceof ValidationError) {
+    return c.json({ success: false, error: error.message }, 400);
+  }
+  if (error instanceof NotFoundError) {
+    return c.json({ success: false, error: "Not found" }, 404);
+  }
+  throw error; // Let global handler catch it
+}
+```
+
+## Security
+
+### Input Sanitization
+Sanitize all inputs:
+- Validate parameter types
+- Check string lengths
+- Verify format (UUIDs, etc.)
+- Prevent injection attacks
+
+### Request Size Limits
+Limit request body size:
+```typescript
+app.use("*", requestSizeLimit(100 * 1024)); // 100KB
+```
+
+### Security Headers
+Apply security headers:
+```typescript
+app.use("*", securityHeaders());
+```
+
+### CORS
+Configure CORS appropriately:
+```typescript
+app.use("*", corsMiddleware());
+```
+
+## Content Types
+
+### Request Content-Type
+Expect JSON for POST/PUT:
+```typescript
+const contentType = c.req.header("Content-Type");
+if (!contentType?.includes("application/json")) {
+  return c.json({
+    success: false,
+    error: "Content-Type must be application/json",
+  }, 400);
+}
+```
+
+### Response Content-Type
+Set appropriate content types:
+```typescript
+// JSON
+return c.json(data);  // Automatically sets application/json
+
+// Plain text
+return c.text(rules); // Sets text/plain
+
+// Markdown
+c.header("Content-Type", "text/markdown");
+return c.text(content);
+```
+
+## File Downloads
+
+### Content-Disposition
+Set headers for file downloads:
+```typescript
+c.header("Content-Disposition", 'attachment; filename="nomoji.mdc"');
+c.header("Content-Type", "text/markdown");
+return c.text(content);
+```
+
+## Observability
+
+### Request Logging
+Log all requests:
+```typescript
+logger.info("API request", {
+  method: c.req.method,
+  path: c.req.path,
+  userId,
+  duration,
+});
+```
+
+### Performance Tracking
+Track endpoint performance:
+```typescript
+const perf = c.get("perf") as PerformanceTracker;
+perf.mark("operation_start");
+await operation();
+perf.mark("operation_end");
+
+const duration = perf.getMarkDuration(
+  "operation_start",
+  "operation_end"
+);
+```
+
+### Analytics
+Track API usage:
+```typescript
+const analytics = c.get("analytics") as Analytics;
+await analytics.trackApiCall({
+  endpoint: c.req.path,
+  method: c.req.method,
+  statusCode: response.status,
+});
+```
+
+## API Documentation
+
+### Endpoint Comments
+Document all endpoints:
+```typescript
+// Get user configuration
+// 
+// Returns the user's emoji control configuration. If no configuration
+// exists, returns the default configuration.
+//
+// @param userId - User identifier
+// @returns User configuration
+app.get("/api/config/:userId", async (c) => {
+  // Implementation
+});
+```
+
+### OpenAPI/Swagger
+Consider adding OpenAPI documentation for API consumers.
+
+## Testing
+
+### Test All Endpoints
+Write tests for each endpoint:
+```typescript
+test("GET /api/config/:userId returns user config", async () => {
+  const response = await app.request("/api/config/default");
+  expect(response.status).toBe(200);
+  
+  const data = await response.json();
+  expect(data.success).toBe(true);
+  expect(data.data).toBeDefined();
+});
+```
+
+### Test Error Cases
+Test error handling:
+```typescript
+test("GET /api/config/:userId returns 404 for invalid user", async () => {
+  const response = await app.request("/api/config/invalid");
+  expect(response.status).toBe(404);
+});
+```
+
+## Best Practices
+
+### Idempotency
+Make operations idempotent when possible:
+- GET requests are naturally idempotent
+- PUT requests should be idempotent
+- POST requests can be idempotent with idempotency keys
+
+### Pagination
+Paginate large result sets:
+```typescript
+const page = parseInt(c.req.query("page") ?? "1", 10);
+const limit = parseInt(c.req.query("limit") ?? "20", 10);
+const offset = (page - 1) * limit;
+```
+
+### Filtering and Sorting
+Support query parameters for filtering:
+```typescript
+const filter = c.req.query("filter");
+const sort = c.req.query("sort") ?? "createdAt";
+const order = c.req.query("order") ?? "desc";
+```
+
+---
+
+**Remember**: A well-designed API is predictable, consistent, and easy to use. Prioritize developer experience and clear documentation.

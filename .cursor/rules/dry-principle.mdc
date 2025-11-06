@@ -1,0 +1,619 @@
+---
+title: DRY Principle and Code Reusability
+version: 1.0.0
+priority: high
+description: Enforce DRY (Don't Repeat Yourself) principle and make maintenance easier
+---
+
+# DRY Principle and Code Reusability
+
+This document enforces the DRY (Don't Repeat Yourself) principle to reduce code duplication and improve maintainability.
+
+## Core Principle
+
+**DRY**: Every piece of knowledge must have a single, unambiguous, authoritative representation within a system.
+
+### Benefits of DRY
+- **Easier maintenance**: Changes in one place propagate everywhere
+- **Fewer bugs**: No inconsistencies between duplicated code
+- **Better readability**: Less code to read and understand
+- **Faster development**: Reuse instead of rewrite
+
+### When to Apply DRY
+- Logic used in 3+ places (Rule of Three)
+- Complex calculations or transformations
+- Configuration values and constants
+- Validation rules
+- API response formatting
+- Error handling patterns
+
+### When NOT to Apply DRY
+- Code similarity is coincidental, not conceptual
+- Abstraction would be more complex than duplication
+- Different contexts that may diverge in the future
+- Over-optimization in early development
+
+## Identifying Code Duplication
+
+### Types of Duplication
+
+#### 1. Exact Duplication
+Identical code blocks in multiple places:
+```typescript
+// BAD: Exact duplication
+function handleUserRequest(userId: string) {
+  if (!userId || userId.length === 0) {
+    return { success: false, error: "User ID is required" };
+  }
+  // Process request
+}
+
+function handleAdminRequest(adminId: string) {
+  if (!adminId || adminId.length === 0) {
+    return { success: false, error: "Admin ID is required" };
+  }
+  // Process request
+}
+
+// GOOD: Extract to shared function
+function validateId(id: string, fieldName: string): string | null {
+  if (!id || id.length === 0) {
+    return `${fieldName} is required`;
+  }
+  return null;
+}
+
+function handleUserRequest(userId: string) {
+  const error = validateId(userId, "User ID");
+  if (error) {
+    return { success: false, error };
+  }
+  // Process request
+}
+```
+
+#### 2. Structural Duplication
+Similar patterns with slight variations:
+```typescript
+// BAD: Structural duplication
+async function getUser(env: Env, id: string) {
+  const cached = await env.CACHE.get(`user:${id}`);
+  if (cached) return JSON.parse(cached);
+  
+  const data = await fetchUser(id);
+  await env.CACHE.put(`user:${id}`, JSON.stringify(data), { expirationTtl: 3600 });
+  return data;
+}
+
+async function getConfig(env: Env, id: string) {
+  const cached = await env.CACHE.get(`config:${id}`);
+  if (cached) return JSON.parse(cached);
+  
+  const data = await fetchConfig(id);
+  await env.CACHE.put(`config:${id}`, JSON.stringify(data), { expirationTtl: 3600 });
+  return data;
+}
+
+// GOOD: Generic cache wrapper
+async function withCache<T>(
+  env: Env,
+  key: string,
+  fetcher: () => Promise<T>,
+  ttl: number = 3600
+): Promise<T> {
+  const cached = await env.CACHE.get(key);
+  if (cached) return JSON.parse(cached);
+  
+  const data = await fetcher();
+  await env.CACHE.put(key, JSON.stringify(data), { expirationTtl: ttl });
+  return data;
+}
+
+async function getUser(env: Env, id: string) {
+  return withCache(env, `user:${id}`, () => fetchUser(id));
+}
+
+async function getConfig(env: Env, id: string) {
+  return withCache(env, `config:${id}`, () => fetchConfig(id));
+}
+```
+
+#### 3. Semantic Duplication
+Same concept expressed differently:
+```typescript
+// BAD: Semantic duplication
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function checkEmailFormat(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// GOOD: Single authoritative implementation
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+```
+
+## Refactoring Strategies
+
+### 1. Extract Function
+Pull repeated logic into a function:
+```typescript
+// BAD: Repeated logic
+app.post("/user", async (c) => {
+  const body = await c.req.json();
+  if (!body.userId) {
+    return c.json({ success: false, error: "userId required" }, 400);
+  }
+  // Process user
+});
+
+app.post("/config", async (c) => {
+  const body = await c.req.json();
+  if (!body.userId) {
+    return c.json({ success: false, error: "userId required" }, 400);
+  }
+  // Process config
+});
+
+// GOOD: Extracted validation
+function validateUserId(body: any): string | null {
+  if (!body.userId) {
+    return "userId required";
+  }
+  return null;
+}
+
+app.post("/user", async (c) => {
+  const body = await c.req.json();
+  const error = validateUserId(body);
+  if (error) {
+    return c.json({ success: false, error }, 400);
+  }
+  // Process user
+});
+```
+
+### 2. Extract Constant
+Move repeated values to constants:
+```typescript
+// BAD: Magic numbers and strings
+function setTimeout1() {
+  return 5000;
+}
+
+function setTimeout2() {
+  return 5000;
+}
+
+const key1 = "user:config:v1";
+const key2 = "admin:config:v1";
+
+// GOOD: Named constants
+const DEFAULT_TIMEOUT_MS = 5000;
+const CONFIG_VERSION = "v1";
+
+function setTimeout1() {
+  return DEFAULT_TIMEOUT_MS;
+}
+
+function setTimeout2() {
+  return DEFAULT_TIMEOUT_MS;
+}
+
+const key1 = `user:config:${CONFIG_VERSION}`;
+const key2 = `admin:config:${CONFIG_VERSION}`;
+```
+
+### 3. Extract Type
+Share type definitions:
+```typescript
+// BAD: Repeated type definitions
+function processUser(user: { id: string; name: string; email: string }) {
+  // Process
+}
+
+function validateUser(user: { id: string; name: string; email: string }) {
+  // Validate
+}
+
+// GOOD: Shared type definition
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+function processUser(user: User) {
+  // Process
+}
+
+function validateUser(user: User) {
+  // Validate
+}
+```
+
+### 4. Extract Configuration
+Centralize configuration:
+```typescript
+// BAD: Scattered configuration
+const user1 = { timeout: 5000, retries: 3, log: true };
+const user2 = { timeout: 5000, retries: 3, log: true };
+
+// GOOD: Centralized configuration
+const DEFAULT_OPTIONS = {
+  timeout: 5000,
+  retries: 3,
+  log: true,
+} as const;
+
+const user1 = { ...DEFAULT_OPTIONS };
+const user2 = { ...DEFAULT_OPTIONS };
+```
+
+### 5. Create Utility Function
+Build reusable utilities:
+```typescript
+// BAD: Repeated transformations
+const formattedDate1 = new Date(timestamp1).toISOString().split("T")[0];
+const formattedDate2 = new Date(timestamp2).toISOString().split("T")[0];
+const formattedDate3 = new Date(timestamp3).toISOString().split("T")[0];
+
+// GOOD: Utility function
+function formatDate(timestamp: number): string {
+  return new Date(timestamp).toISOString().split("T")[0];
+}
+
+const formattedDate1 = formatDate(timestamp1);
+const formattedDate2 = formatDate(timestamp2);
+const formattedDate3 = formatDate(timestamp3);
+```
+
+### 6. Use Higher-Order Functions
+Abstract patterns with HOFs:
+```typescript
+// BAD: Repeated error handling
+async function fetchUser(id: string) {
+  try {
+    return await fetch(`/api/users/${id}`);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    throw error;
+  }
+}
+
+async function fetchConfig(id: string) {
+  try {
+    return await fetch(`/api/configs/${id}`);
+  } catch (error) {
+    console.error("Error fetching config:", error);
+    throw error;
+  }
+}
+
+// GOOD: Higher-order function
+function withErrorHandling<T>(
+  fn: () => Promise<T>,
+  context: string
+): Promise<T> {
+  return fn().catch((error) => {
+    console.error(`Error ${context}:`, error);
+    throw error;
+  });
+}
+
+async function fetchUser(id: string) {
+  return withErrorHandling(
+    () => fetch(`/api/users/${id}`),
+    "fetching user"
+  );
+}
+
+async function fetchConfig(id: string) {
+  return withErrorHandling(
+    () => fetch(`/api/configs/${id}`),
+    "fetching config"
+  );
+}
+```
+
+## Practical Patterns
+
+### 1. Response Builders
+Standardize API responses:
+```typescript
+// BAD: Inconsistent responses
+return c.json({ success: true, data: user });
+return c.json({ success: false, error: "Not found" }, 404);
+return c.json({ ok: true, result: config });
+
+// GOOD: Consistent response builders
+function successResponse<T>(data: T) {
+  return { success: true, data };
+}
+
+function errorResponse(error: string, code: number = 400) {
+  return { success: false, error, code };
+}
+
+return c.json(successResponse(user));
+return c.json(errorResponse("Not found", 404), 404);
+return c.json(successResponse(config));
+```
+
+### 2. Validation Schemas
+Reuse validation logic:
+```typescript
+// BAD: Repeated validation
+if (!body.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
+  return error("Invalid email");
+}
+
+// GOOD: Validation schema
+const validators = {
+  email: (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+  required: (value: any) => value != null && value !== "",
+  minLength: (min: number) => (value: string) => value.length >= min,
+};
+
+if (!validators.email(body.email)) {
+  return error("Invalid email");
+}
+```
+
+### 3. Middleware Composition
+Build reusable middleware:
+```typescript
+// BAD: Repeated middleware logic
+app.use("/api/*", async (c, next) => {
+  const userId = c.req.header("x-user-id");
+  if (!userId) return c.json({ error: "Unauthorized" }, 401);
+  c.set("userId", userId);
+  await next();
+});
+
+app.use("/admin/*", async (c, next) => {
+  const adminId = c.req.header("x-admin-id");
+  if (!adminId) return c.json({ error: "Unauthorized" }, 401);
+  c.set("adminId", adminId);
+  await next();
+});
+
+// GOOD: Generic auth middleware
+function requireHeader(headerName: string, contextKey: string) {
+  return async (c: Context, next: Next) => {
+    const value = c.req.header(headerName);
+    if (!value) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+    c.set(contextKey, value);
+    await next();
+  };
+}
+
+app.use("/api/*", requireHeader("x-user-id", "userId"));
+app.use("/admin/*", requireHeader("x-admin-id", "adminId"));
+```
+
+### 4. Data Access Layer
+Centralize data operations:
+```typescript
+// BAD: Scattered KV access
+const user = await env.KV.get(`user:${id}`, "json");
+const config = await env.KV.get(`config:${id}`, "json");
+
+await env.KV.put(`user:${id}`, JSON.stringify(user));
+await env.KV.put(`config:${id}`, JSON.stringify(config));
+
+// GOOD: Data access layer
+class Storage<T> {
+  constructor(
+    private env: Env,
+    private prefix: string
+  ) {}
+
+  async get(id: string): Promise<T | null> {
+    return await this.env.KV.get(`${this.prefix}:${id}`, "json");
+  }
+
+  async put(id: string, data: T): Promise<void> {
+    await this.env.KV.put(`${this.prefix}:${id}`, JSON.stringify(data));
+  }
+}
+
+const userStorage = new Storage<User>(env, "user");
+const configStorage = new Storage<Config>(env, "config");
+
+const user = await userStorage.get(id);
+const config = await configStorage.get(id);
+```
+
+## Code Organization for DRY
+
+### File Structure
+Organize code to promote reusability:
+```
+src/
+├── utils/           # Shared utilities
+│   ├── validation.ts
+│   ├── formatting.ts
+│   └── http.ts
+├── config/          # Shared configuration
+│   └── defaults.ts
+├── types/           # Shared types
+│   └── index.ts
+└── middleware/      # Reusable middleware
+    └── auth.ts
+```
+
+### Naming Conventions
+Use clear names for reusable code:
+- Utilities: `formatDate`, `validateEmail`, `parseJson`
+- Builders: `buildResponse`, `createConfig`
+- Factories: `createUser`, `makeRequest`
+- Helpers: `helperFunction`, `helperMethod`
+
+## Testing DRY Code
+
+### Test Shared Functions Once
+```typescript
+// GOOD: Test utility once
+describe("formatDate", () => {
+  it("formats timestamp correctly", () => {
+    expect(formatDate(1234567890)).toBe("2009-02-13");
+  });
+});
+
+// Then use with confidence everywhere
+const date1 = formatDate(timestamp1);
+const date2 = formatDate(timestamp2);
+```
+
+### Reduce Test Duplication
+```typescript
+// BAD: Repeated test setup
+test("user endpoint", async () => {
+  const app = new Hono();
+  const env = getMockEnv();
+  // Test user
+});
+
+test("config endpoint", async () => {
+  const app = new Hono();
+  const env = getMockEnv();
+  // Test config
+});
+
+// GOOD: Shared test setup
+function createTestContext() {
+  return {
+    app: new Hono(),
+    env: getMockEnv(),
+  };
+}
+
+test("user endpoint", async () => {
+  const { app, env } = createTestContext();
+  // Test user
+});
+
+test("config endpoint", async () => {
+  const { app, env } = createTestContext();
+  // Test config
+});
+```
+
+## Documentation for Reusable Code
+
+### Document Shared Functions
+```typescript
+/**
+ * Validates and formats a user email address
+ * 
+ * @param email - Raw email string
+ * @returns Formatted email or null if invalid
+ * @example
+ * ```ts
+ * const email = validateEmail("user@example.com");
+ * // Returns: "user@example.com"
+ * ```
+ */
+function validateEmail(email: string): string | null {
+  // Implementation
+}
+```
+
+### Document Configuration
+```typescript
+/**
+ * Default configuration options
+ * 
+ * @property timeout - Request timeout in milliseconds
+ * @property retries - Number of retry attempts
+ * @property log - Enable logging
+ */
+const DEFAULT_OPTIONS = {
+  timeout: 5000,
+  retries: 3,
+  log: true,
+} as const;
+```
+
+## Measuring DRY Success
+
+### Metrics to Track
+- **Code duplication percentage**: Should decrease over time
+- **Lines of code**: Should decrease with better abstraction
+- **Function reuse**: Track how often utilities are used
+- **Bug fix propagation**: Fixes in shared code help everywhere
+
+### Code Review Checklist
+- [ ] Is this logic used elsewhere?
+- [ ] Can this be extracted to a utility?
+- [ ] Are there similar patterns that can be unified?
+- [ ] Is the abstraction simpler than duplication?
+- [ ] Does this follow existing patterns?
+
+## Common Anti-Patterns
+
+### Over-Abstraction
+```typescript
+// BAD: Premature abstraction
+function processData<T, U, V>(
+  data: T,
+  transformer: (t: T) => U,
+  validator: (u: U) => V,
+  formatter: (v: V) => string
+): string {
+  return formatter(validator(transformer(data)));
+}
+
+// GOOD: Simple, clear function
+function formatUserName(user: User): string {
+  return `${user.firstName} ${user.lastName}`;
+}
+```
+
+### Wrong Abstraction
+```typescript
+// BAD: Forcing unrelated code into shared function
+function processUserOrConfig(type: "user" | "config", data: any) {
+  if (type === "user") {
+    // User-specific logic
+  } else {
+    // Config-specific logic
+  }
+}
+
+// GOOD: Separate functions for different concerns
+function processUser(user: User) {
+  // User logic
+}
+
+function processConfig(config: Config) {
+  // Config logic
+}
+```
+
+## Gradual Refactoring
+
+### Steps to Eliminate Duplication
+1. **Identify**: Find duplicated code
+2. **Analyze**: Determine if it's truly the same concept
+3. **Extract**: Pull out to shared location
+4. **Test**: Ensure behavior is preserved
+5. **Replace**: Update all call sites
+6. **Verify**: Run full test suite
+
+### Refactoring Safely
+- Make small, incremental changes
+- Test after each refactoring
+- Keep commits focused
+- Document breaking changes
+- Consider backward compatibility
+
+---
+
+**Remember**: DRY is about reducing conceptual duplication, not just code similarity. The goal is maintainability, not minimal lines of code. Apply DRY thoughtfully, not dogmatically.

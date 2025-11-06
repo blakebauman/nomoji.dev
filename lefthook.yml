@@ -1,0 +1,166 @@
+# Lefthook configuration for nomoji.dev
+# See https://lefthook.dev/ for documentation
+
+pre-commit:
+  parallel: true
+  commands:
+    biome-check:
+      glob: "*.{ts,tsx,js,jsx,json}"
+      run: pnpm exec biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
+      stage_fixed: true
+    
+    type-check:
+      glob: "*.{ts,tsx}"
+      run: pnpm run type-check
+    
+    emoji-check:
+      run: |
+        # Don't exit on errors, we'll handle them gracefully
+        set +e
+        
+        echo "nomoji.dev: Checking staged files for emojis..."
+        
+        # Check if jq is installed
+        if ! command -v jq >/dev/null 2>&1; then
+          echo "Warning: jq not installed, skipping emoji check"
+          echo "Install jq to enable emoji checking: brew install jq"
+          exit 0
+        fi
+        
+        NOMOJI_API="https://nomoji.dev/api"
+        
+        # Get list of staged files (exclude deleted files)
+        staged_files=$(git diff --cached --name-only --diff-filter=ACM)
+        
+        if [ -z "$staged_files" ]; then
+          echo "No files to check"
+          exit 0
+        fi
+        
+        # Counter for files with emojis
+        failed=0
+        total_emojis=0
+        checked=0
+        
+        # Check each staged file
+        for file in $staged_files; do
+          # Skip if file doesn't exist (shouldn't happen with ACM filter, but be safe)
+          if [ ! -f "$file" ]; then
+            continue
+          fi
+          
+          # Skip binary and non-text files
+          if file "$file" 2>/dev/null | grep -qi "binary\|image\|executable"; then
+            continue
+          fi
+          
+          # Read file content
+          content=$(cat "$file" 2>/dev/null)
+          
+          # Skip empty files
+          if [ -z "$content" ]; then
+            continue
+          fi
+          
+          # Analyze with nomoji.dev API
+          result=$(curl -s -X POST "$NOMOJI_API/analyze" \
+            -H "Content-Type: application/json" \
+            -d "{\"text\":$(echo "$content" | jq -Rs .)}" 2>/dev/null)
+          
+          # Check if request was successful and result is valid JSON
+          if [ $? -ne 0 ] || [ -z "$result" ]; then
+            echo "Warning: Failed to check $file (API request failed)"
+            continue
+          fi
+          
+          # Parse result
+          has_emojis=$(echo "$result" | jq -r '.data.hasEmojis' 2>/dev/null)
+          
+          if [ "$has_emojis" = "true" ]; then
+            emoji_count=$(echo "$result" | jq -r '.data.count' 2>/dev/null)
+            unique_emojis=$(echo "$result" | jq -r '.data.unique | join(", ")' 2>/dev/null)
+            
+            echo "FAIL: $file contains $emoji_count emoji(s): $unique_emojis"
+            
+            failed=$((failed + 1))
+            total_emojis=$((total_emojis + emoji_count))
+          fi
+          
+          checked=$((checked + 1))
+        done
+        
+        # Report results
+        echo ""
+        if [ $failed -gt 0 ]; then
+          echo "=================================="
+          echo "COMMIT REJECTED"
+          echo "=================================="
+          echo "Found $total_emojis emoji(s) in $failed file(s)"
+          echo ""
+          echo "Please remove emojis from your code before committing."
+          echo ""
+          echo "To bypass this check (not recommended):"
+          echo "  git commit --no-verify"
+          echo ""
+          exit 1
+        else
+          echo "Checked $checked files - all emoji-free!"
+          exit 0
+        fi
+
+commit-msg:
+  commands:
+    emoji-check:
+      run: |
+        set -e
+        
+        NOMOJI_API="https://nomoji.dev/api"
+        USER_ID="${NOMOJI_USER_ID:-default}"
+        
+        # Read commit message
+        commit_msg=$(cat {1})
+        
+        echo "nomoji.dev: Checking commit message for emojis..."
+        
+        # Analyze commit message
+        result=$(curl -s -X POST "$NOMOJI_API/analyze" \
+          -H "Content-Type: application/json" \
+          -d "{\"text\":\"$commit_msg\"}" 2>/dev/null)
+        
+        # Check if request was successful
+        if [ $? -ne 0 ]; then
+          echo "Warning: Failed to check commit message (API request failed)"
+          exit 0
+        fi
+        
+        # Parse result
+        has_emojis=$(echo "$result" | jq -r '.data.hasEmojis' 2>/dev/null)
+        
+        if [ "$has_emojis" = "true" ]; then
+          emoji_count=$(echo "$result" | jq -r '.data.count')
+          unique_emojis=$(echo "$result" | jq -r '.data.unique | join(", ")')
+          
+          echo ""
+          echo "=================================="
+          echo "COMMIT MESSAGE REJECTED"
+          echo "=================================="
+          echo "Your commit message contains $emoji_count emoji(s): $unique_emojis"
+          echo ""
+          echo "Please write commit messages without emojis."
+          echo "Use conventional commit format:"
+          echo "  feat: add new feature"
+          echo "  fix: resolve bug in component"
+          echo "  docs: update README"
+          echo ""
+          echo "To bypass this check (not recommended):"
+          echo "  git commit --no-verify"
+          echo ""
+          exit 1
+        else
+          echo "OK: Commit message is emoji-free"
+        fi
+
+pre-push:
+  commands:
+    tests:
+      run: pnpm test

@@ -1,0 +1,486 @@
+---
+title: Testing Standards
+version: 1.0.0
+priority: high
+description: Testing practices and guidelines for nomoji.dev
+---
+
+# Testing Standards
+
+This project uses Vitest with Cloudflare Workers pool for testing.
+
+## Testing Philosophy
+
+### Test Coverage Goals
+Aim for comprehensive coverage:
+- Core business logic: 90%+ coverage
+- API endpoints: 100% coverage
+- Utility functions: 85%+ coverage
+- Middleware: 80%+ coverage
+- Views/UI: Can be excluded from coverage
+
+### Test Types
+
+**Unit Tests:**
+Test individual functions in isolation:
+```typescript
+test("analyzeEmojis detects emojis correctly", () => {
+  const result = analyzeEmojis("Hello world");
+  expect(result.hasEmojis).toBe(false);
+  
+  const withEmoji = analyzeEmojis("Hello 👋 world");
+  expect(withEmoji.hasEmojis).toBe(true);
+  expect(withEmoji.count).toBe(1);
+});
+```
+
+**Integration Tests:**
+Test API endpoints and middleware chains:
+```typescript
+test("POST /api/config/:userId updates configuration", async () => {
+  const response = await app.request("/api/config/test-user", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ enabled: false }),
+  });
+  
+  expect(response.status).toBe(200);
+  const data = await response.json();
+  expect(data.success).toBe(true);
+});
+```
+
+**End-to-End Tests:**
+Test complete user flows through multiple endpoints.
+
+## Test Organization
+
+### File Structure
+Mirror source structure in test directory:
+```
+src/
+  utils/emoji.ts
+  middleware/validation.ts
+  
+test/
+  utils.test.ts          # Tests for utils
+  middleware.test.ts     # Tests for middleware
+```
+
+### Test File Naming
+- Use `.test.ts` suffix for test files
+- Match the module being tested: `emoji.ts` → `emoji.test.ts`
+- Group related tests: `api.test.ts` for all API tests
+
+### Test Organization
+Group tests with `describe`:
+```typescript
+describe("emoji detection", () => {
+  test("detects single emoji", () => { });
+  test("detects multiple emojis", () => { });
+  test("handles empty string", () => { });
+});
+```
+
+## Writing Tests
+
+### Test Structure
+Follow Arrange-Act-Assert pattern:
+```typescript
+test("applies strict preset", async () => {
+  // Arrange
+  const userId = "test-user";
+  const preset = "strict";
+  
+  // Act
+  const config = await applyPreset(env, userId, preset);
+  
+  // Assert
+  expect(config.contexts.documentation.severity).toBe("strict");
+  expect(config.contexts.console.severity).toBe("strict");
+});
+```
+
+### Descriptive Test Names
+Use clear, descriptive names:
+```typescript
+// Good
+test("returns 400 when userId is missing", () => { });
+test("caches response for 5 minutes", () => { });
+test("handles concurrent requests correctly", () => { });
+
+// Bad
+test("test 1", () => { });
+test("validation works", () => { });
+test("api test", () => { });
+```
+
+### Single Assertion Focus
+Test one thing per test:
+```typescript
+// Good
+test("returns 404 when config not found", () => {
+  expect(response.status).toBe(404);
+});
+
+test("includes error message when config not found", () => {
+  expect(response.error).toBe("Configuration not found");
+});
+
+// Avoid
+test("handles not found correctly", () => {
+  expect(response.status).toBe(404);
+  expect(response.error).toBe("Configuration not found");
+  expect(response.success).toBe(false);
+});
+```
+
+## Mocking
+
+### Mock Environment Bindings
+Mock Cloudflare bindings in tests:
+```typescript
+const mockEnv: Env = {
+  PREFERENCES: {
+    get: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+  } as unknown as KVNamespace,
+  ANALYTICS: {
+    writeDataPoint: vi.fn(),
+  },
+  ENVIRONMENT: "test",
+  LOG_LEVEL: "debug",
+};
+```
+
+### Mock External Services
+Mock external dependencies:
+```typescript
+vi.mock("./utils/storage", () => ({
+  getOrCreateUserConfig: vi.fn(() => DEFAULT_CONFIG),
+  updateUserConfig: vi.fn((env, userId, config) => config),
+}));
+```
+
+### Spy on Functions
+Use spies to verify calls:
+```typescript
+const spy = vi.spyOn(storage, "saveConfig");
+await saveUserConfig(userId, config);
+expect(spy).toHaveBeenCalledWith(userId, config);
+```
+
+## Async Testing
+
+### Async/Await
+Use async/await for async tests:
+```typescript
+test("fetches user config", async () => {
+  const config = await getConfig(userId);
+  expect(config).toBeDefined();
+});
+```
+
+### Promise Resolution
+Test promise resolution:
+```typescript
+test("resolves with config", async () => {
+  await expect(getConfig(userId)).resolves.toMatchObject({
+    version: "1.0.0",
+    enabled: true,
+  });
+});
+```
+
+### Promise Rejection
+Test error cases:
+```typescript
+test("rejects when userId is invalid", async () => {
+  await expect(getConfig("")).rejects.toThrow("Invalid userId");
+});
+```
+
+## Test Data
+
+### Use Constants
+Define test data constants:
+```typescript
+const TEST_USER_ID = "test-user-123";
+const TEST_CONFIG: NomojiConfig = {
+  version: "1.0.0",
+  enabled: true,
+  contexts: { /* ... */ },
+};
+```
+
+### Factories
+Create factory functions for complex objects:
+```typescript
+function createTestConfig(overrides?: Partial<NomojiConfig>): NomojiConfig {
+  return {
+    ...DEFAULT_CONFIG,
+    ...overrides,
+  };
+}
+
+test("updates config", () => {
+  const config = createTestConfig({ enabled: false });
+  expect(config.enabled).toBe(false);
+});
+```
+
+## Testing API Endpoints
+
+### Test Request
+Test HTTP requests:
+```typescript
+test("GET /api/config/:userId returns config", async () => {
+  const response = await app.request("/api/config/default");
+  
+  expect(response.status).toBe(200);
+  expect(response.headers.get("Content-Type")).toContain("application/json");
+  
+  const data = await response.json();
+  expect(data.success).toBe(true);
+  expect(data.data).toBeDefined();
+});
+```
+
+### Test POST/PUT
+Test write operations:
+```typescript
+test("POST /api/config/:userId updates config", async () => {
+  const body = { enabled: false };
+  
+  const response = await app.request("/api/config/test-user", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  
+  expect(response.status).toBe(200);
+});
+```
+
+### Test Error Cases
+Test error handling:
+```typescript
+test("returns 400 for invalid body", async () => {
+  const response = await app.request("/api/config/test-user", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: "invalid json",
+  });
+  
+  expect(response.status).toBe(400);
+});
+```
+
+## Testing Middleware
+
+### Test Middleware Behavior
+Test middleware effects:
+```typescript
+test("rate limiter blocks after limit exceeded", async () => {
+  const requests = Array(11).fill(null).map(() =>
+    app.request("/api/config/test-user")
+  );
+  
+  const responses = await Promise.all(requests);
+  const lastResponse = responses[responses.length - 1];
+  
+  expect(lastResponse.status).toBe(429);
+});
+```
+
+### Test Validation
+Test validation middleware:
+```typescript
+test("validates userId format", async () => {
+  const response = await app.request("/api/config/invalid@user");
+  expect(response.status).toBe(400);
+});
+```
+
+## Testing Utilities
+
+### Test Pure Functions
+Test utility functions thoroughly:
+```typescript
+describe("emoji detection", () => {
+  test("detects basic emojis", () => {
+    expect(containsEmoji("😀")).toBe(true);
+    expect(containsEmoji("Hello")).toBe(false);
+  });
+  
+  test("detects complex emojis", () => {
+    expect(containsEmoji("👨‍👩‍👧‍👦")).toBe(true);
+  });
+  
+  test("counts emojis correctly", () => {
+    expect(countEmojis("😀😁😂")).toBe(3);
+  });
+});
+```
+
+## Coverage
+
+### Run Coverage
+Generate coverage reports:
+```bash
+npm run test:coverage
+```
+
+### Coverage Thresholds
+Set minimum coverage thresholds in `vitest.config.ts`:
+```typescript
+coverage: {
+  provider: "v8",
+  reporter: ["text", "json", "html"],
+  thresholds: {
+    lines: 80,
+    functions: 80,
+    branches: 75,
+    statements: 80,
+  },
+}
+```
+
+### Exclude from Coverage
+Exclude files that don't need coverage:
+```typescript
+coverage: {
+  exclude: [
+    "node_modules/**",
+    "dist/**",
+    "**/*.d.ts",
+    "**/*.config.*",
+    "**/views/**",  // JSX views
+  ],
+}
+```
+
+## Performance Testing
+
+### Test Response Times
+Verify performance:
+```typescript
+test("responds within 100ms", async () => {
+  const start = Date.now();
+  await app.request("/api/config/default");
+  const duration = Date.now() - start;
+  
+  expect(duration).toBeLessThan(100);
+});
+```
+
+## Test Helpers
+
+### Create Reusable Helpers
+Build test utilities:
+```typescript
+// test/helpers.ts
+export async function createTestApp() {
+  const app = new Hono<{ Bindings: Env }>();
+  // Setup routes
+  return app;
+}
+
+export async function mockEnv(): Promise<Env> {
+  return {
+    PREFERENCES: mockKV(),
+    ANALYTICS: mockAnalytics(),
+    ENVIRONMENT: "test",
+  };
+}
+```
+
+### Use Setup/Teardown
+Clean up between tests:
+```typescript
+beforeEach(() => {
+  // Setup test state
+  vi.clearAllMocks();
+});
+
+afterEach(() => {
+  // Cleanup
+  vi.resetAllMocks();
+});
+```
+
+## Debugging Tests
+
+### Focused Tests
+Run specific tests:
+```typescript
+test.only("this test only", () => { });
+```
+
+### Skip Tests
+Skip tests temporarily:
+```typescript
+test.skip("skip this test", () => { });
+```
+
+### Debug Output
+Use console.log for debugging (remove before commit):
+```typescript
+test("debug test", () => {
+  console.log("Debug info:", value);
+  expect(value).toBe(expected);
+});
+```
+
+## Continuous Integration
+
+### CI Testing
+Tests run automatically on CI:
+```bash
+npm run test          # Run all tests
+npm run test:coverage # Generate coverage report
+npm run check:ci      # Run all checks (lint, format, test)
+```
+
+### Fast Feedback
+Keep tests fast:
+- Unit tests: < 10ms each
+- Integration tests: < 100ms each
+- Total test suite: < 30 seconds
+
+## Best Practices
+
+### Test First
+Consider TDD approach:
+1. Write failing test
+2. Implement feature
+3. Refactor
+4. Ensure tests pass
+
+### Keep Tests Simple
+Tests should be easier to understand than implementation.
+
+### Don't Test Implementation
+Test behavior, not implementation details:
+```typescript
+// Good - tests behavior
+test("returns filtered configs", () => {
+  const result = filterConfigs(configs, "strict");
+  expect(result).toHaveLength(2);
+});
+
+// Bad - tests implementation
+test("calls filter method", () => {
+  const spy = vi.spyOn(Array.prototype, "filter");
+  filterConfigs(configs, "strict");
+  expect(spy).toHaveBeenCalled();
+});
+```
+
+### Keep Tests Independent
+Each test should be able to run in isolation.
+
+---
+
+**Remember**: Good tests document behavior, catch regressions, and give confidence to refactor. Invest time in writing quality tests.

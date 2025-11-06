@@ -1,0 +1,414 @@
+---
+title: Architecture and Design Patterns
+version: 1.0.0
+priority: high
+description: Architectural principles and design patterns for nomoji.dev
+---
+
+# Architecture and Design Patterns
+
+This document outlines the architectural principles and design patterns used in nomoji.dev.
+
+## Project Architecture
+
+### Technology Stack
+- **Runtime**: Cloudflare Workers
+- **Framework**: Hono (lightweight web framework)
+- **Language**: TypeScript (strict mode)
+- **Storage**: Cloudflare KV
+- **Analytics**: Cloudflare Analytics Engine
+- **Testing**: Vitest with Workers pool
+- **Linting/Formatting**: Biome
+
+### Application Structure
+```
+src/
+├── index.ts              # Application entry point
+├── types.ts              # TypeScript type definitions
+├── config/
+│   └── defaults.ts       # Default configurations and presets
+├── middleware/
+│   ├── cors.ts           # CORS middleware
+│   ├── observability.ts  # Logging, metrics, tracing
+│   ├── ratelimit.ts      # Rate limiting
+│   ├── security.ts       # Security headers, size limits
+│   └── validation.ts     # Request validation
+├── rules/
+│   ├── claude.ts         # Claude Code subagent generation
+│   ├── cursor.ts         # Cursor rules generation
+│   └── generator.ts      # Generic rule generation
+├── utils/
+│   ├── cache.ts          # Response caching
+│   ├── emoji.ts          # Emoji detection utilities
+│   └── storage.ts        # KV storage operations
+└── views/
+    ├── home.tsx          # Home page component
+    └── layout.tsx        # HTML layout component
+```
+
+## Architectural Principles
+
+### 1. Separation of Concerns
+Each module has a single responsibility:
+- **Routes** (`index.ts`): Request routing and orchestration
+- **Middleware**: Cross-cutting concerns (auth, logging, validation)
+- **Rules**: Business logic for rule generation
+- **Utils**: Reusable utilities
+- **Views**: Presentation layer
+
+### 2. Dependency Injection
+Pass dependencies explicitly:
+```typescript
+async function getConfig(env: Env, userId: string) {
+  // env is injected, not global
+  return await env.PREFERENCES.get(`user:${userId}:config`);
+}
+```
+
+### 3. Immutability
+Prefer immutable data structures:
+```typescript
+const updatedConfig = {
+  ...existingConfig,
+  enabled: false,
+};
+```
+
+### 4. Fail Fast
+Validate early and fail fast:
+```typescript
+if (!userId) {
+  return c.json({ success: false, error: "userId required" }, 400);
+}
+```
+
+## Design Patterns
+
+### Middleware Pattern
+Composable request processing:
+```typescript
+app.use("*", securityHeaders());
+app.use("*", corsMiddleware());
+app.use("/api/*", rateLimitMiddleware());
+```
+
+Middleware responsibilities:
+- Security headers
+- CORS handling
+- Rate limiting
+- Request validation
+- Logging and observability
+- Caching
+
+### Repository Pattern
+Centralize data access:
+```typescript
+// utils/storage.ts
+export async function getOrCreateUserConfig(
+  env: Env,
+  userId: string
+): Promise<NomojiConfig> {
+  const stored = await env.PREFERENCES.get(key, "json");
+  return stored ?? DEFAULT_CONFIG;
+}
+```
+
+Benefits:
+- Abstracts storage implementation
+- Centralizes data access logic
+- Easy to test with mocks
+
+### Factory Pattern
+Create objects with defaults:
+```typescript
+function createConfig(overrides?: Partial<NomojiConfig>): NomojiConfig {
+  return {
+    ...DEFAULT_CONFIG,
+    ...overrides,
+  };
+}
+```
+
+### Strategy Pattern
+Different rule generation strategies:
+```typescript
+function generateRules(config: NomojiConfig, format: "claude" | "cursor") {
+  switch (format) {
+    case "claude":
+      return generateClaudeSubagent(config);
+    case "cursor":
+      return generateCursorRules(config);
+  }
+}
+```
+
+### Builder Pattern
+Fluent configuration:
+```typescript
+const config = new ConfigBuilder()
+  .setVersion("1.0.0")
+  .enableContext("documentation", "strict")
+  .enableContext("console", "strict")
+  .build();
+```
+
+## Request Flow
+
+### Typical Request Flow
+1. **Security Headers**: Apply security headers to response
+2. **CORS**: Handle CORS preflight and headers
+3. **Size Limit**: Reject oversized requests
+4. **Observability**: Start logging and performance tracking
+5. **Rate Limiting**: Check rate limits
+6. **Validation**: Validate parameters and body
+7. **Caching**: Check cache, return if hit
+8. **Handler**: Execute business logic
+9. **Response**: Return formatted response
+10. **Observability**: Log completion and metrics
+
+### Middleware Execution Order
+Critical: Order matters for middleware
+```typescript
+// Correct order
+app.use("*", securityHeaders());       // 1. Security first
+app.use("*", corsMiddleware());        // 2. CORS
+app.use("*", requestSizeLimit());      // 3. Size checks
+app.use("*", observability());         // 4. Logging
+app.use("/api/*", RateLimitPresets);   // 5. Rate limiting
+```
+
+## Error Handling Strategy
+
+### Layered Error Handling
+1. **Validation errors**: Return 400 at validation layer
+2. **Business errors**: Return appropriate 4xx in handlers
+3. **System errors**: Caught by global error handler, return 500
+
+### Error Handler
+```typescript
+app.onError((error, c) => {
+  const logger = c.get("logger") as Logger;
+  
+  // Log error with context
+  logger.error("Unhandled error", error, {
+    method: c.req.method,
+    path: c.req.path,
+  });
+  
+  // Return safe error response
+  return c.json({
+    success: false,
+    error: "Internal server error",
+  }, 500);
+});
+```
+
+## Observability Architecture
+
+### Three Pillars
+1. **Logging**: Structured logs with context
+2. **Metrics**: Performance and usage metrics
+3. **Tracing**: Request flow tracking
+
+### Logging Levels
+- `debug`: Development debugging
+- `info`: Normal operation events
+- `warn`: Warning conditions
+- `error`: Error conditions
+
+### Performance Tracking
+```typescript
+perf.mark("operation_start");
+await operation();
+perf.mark("operation_end");
+
+const duration = perf.getMarkDuration(
+  "operation_start",
+  "operation_end"
+);
+```
+
+### Analytics
+Track user behavior and system health:
+```typescript
+analytics.trackConfigChange({ userId, action: "update" });
+analytics.trackAnalysis({ hasEmojis, emojiCount });
+analytics.trackApiCall({ endpoint, method, statusCode });
+```
+
+## Caching Strategy
+
+### Cache Layers
+1. **HTTP Cache**: Browser and CDN caching
+2. **Workers Cache API**: Edge caching
+3. **Application Cache**: In-memory caching (careful in Workers)
+
+### Cache Invalidation
+- Time-based: TTL expiration
+- Event-based: Invalidate on update
+- Manual: Explicit cache clearing
+
+### Cache Presets
+- `short`: 5 minutes (user configs)
+- `medium`: 1 hour (shared configs)
+- `long`: 24 hours (presets, static data)
+
+## Security Architecture
+
+### Defense in Depth
+Multiple security layers:
+1. **Network**: Cloudflare DDoS protection
+2. **Application**: Rate limiting
+3. **Request**: Size limits, validation
+4. **Headers**: Security headers
+5. **Data**: Input sanitization
+
+### Security Headers
+```typescript
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Content-Security-Policy: default-src 'self'
+```
+
+### Rate Limiting
+- Global: 100 requests/minute
+- Writes: 10 requests/minute
+- Analysis: 50 requests/minute
+
+## Data Storage Strategy
+
+### KV Usage
+- **User configs**: `user:${userId}:config`
+- **Shared configs**: `shared:${configId}`
+- **Temporary data**: With TTL
+
+### Data Consistency
+KV is eventually consistent:
+- Design for eventual consistency
+- Use optimistic updates
+- Handle stale reads gracefully
+
+## Scalability Considerations
+
+### Edge Computing
+- Workers run at 200+ locations globally
+- Low latency worldwide
+- Automatic scaling
+
+### Stateless Design
+- No persistent connections
+- No server-side sessions
+- All state in KV or client
+
+### Resource Limits
+- CPU: 50ms per request
+- Memory: 128MB per Worker
+- Storage: KV (unlimited keys, 25MB value limit)
+
+## Code Organization Best Practices
+
+### Module Organization
+- One primary export per file
+- Related functions grouped together
+- Clear file naming conventions
+
+### Import Organization
+1. External dependencies
+2. Internal types
+3. Internal modules
+4. Relative imports
+
+### File Size
+Keep files manageable:
+- Modules: < 300 lines
+- Components: < 150 lines
+- Functions: < 50 lines
+
+## Configuration Management
+
+### Environment-Based Config
+Use environment variables for:
+- Environment flags (dev/staging/production)
+- Log levels
+- Feature flags
+- API versions
+
+### Default Configuration
+Centralize defaults in `config/defaults.ts`:
+- DEFAULT_CONFIG
+- PRESETS (strict, moderate, relaxed)
+
+### User Configuration
+Store user preferences in KV:
+- User-specific overrides
+- Custom rules
+- Integration settings
+
+## API Versioning Strategy
+
+### Current Approach
+Embedded versioning in URLs:
+```
+/api/config/:userId           # v1 (current)
+/api/v2/config/:userId        # Future version
+```
+
+### Backward Compatibility
+- Support old endpoints during transition
+- Provide deprecation warnings
+- Document migration paths
+
+## Testing Architecture
+
+### Test Structure
+Mirror source structure:
+```
+src/utils/emoji.ts
+test/utils.test.ts
+```
+
+### Test Categories
+- **Unit tests**: Individual functions
+- **Integration tests**: API endpoints
+- **E2E tests**: Complete flows
+
+### Test Isolation
+- Mock external dependencies
+- Use test environment bindings
+- Clean up after each test
+
+## Deployment Architecture
+
+### Environments
+- **Development**: Local with Miniflare
+- **Staging**: Pre-production testing
+- **Production**: Live environment
+
+### Deployment Pipeline
+1. Code commit
+2. CI tests run
+3. Build and bundle
+4. Deploy to Cloudflare Workers
+5. Health check
+6. Monitor
+
+## Future Architecture Considerations
+
+### Potential Enhancements
+- Durable Objects for real-time collaboration
+- R2 for backup storage
+- Queues for async processing
+- AI bindings for advanced emoji detection
+- Vectorize for semantic search
+
+### Microservices Evolution
+Could split into separate Workers:
+- API Worker
+- Rules Generation Worker
+- Analytics Worker
+- Admin Worker
+
+---
+
+**Remember**: Good architecture enables change. Keep it simple, modular, and testable. Optimize for maintainability and developer experience.

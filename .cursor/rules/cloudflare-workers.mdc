@@ -1,0 +1,708 @@
+---
+title: Cloudflare Workers Best Practices
+version: 1.1.0
+priority: high
+description: Guidelines for developing Cloudflare Workers applications with comprehensive bindings reference
+---
+
+# Cloudflare Workers Best Practices
+
+This project runs on Cloudflare Workers. Follow these practices for optimal performance and reliability.
+
+## Architecture Principles
+
+### Edge-First Design
+Design for edge computing:
+- Keep request processing fast (under 50ms CPU time)
+- Minimize computational overhead
+- Use KV for storage, not databases
+- Cache aggressively where appropriate
+
+### Stateless Handlers
+Workers are stateless:
+- Do not rely on global state between requests
+- Use KV or Durable Objects for persistence
+- Initialize resources per-request when needed
+
+## Cloudflare Workers Integrations
+
+Cloudflare Workers can integrate with numerous services via **Bindings**. Bindings enable functionality with just a few lines of code, allowing you to connect to external services like databases, APIs, and storage.
+
+Reference: [Cloudflare Workers Integrations](https://developers.cloudflare.com/workers/#integrate-with-workers)
+
+### Storage Bindings
+
+#### KV (Key-Value Storage)
+Low-latency key-value storage for fast, edge-cached reads.
+```typescript
+interface Env {
+  KV: KVNamespace;
+}
+
+// Read
+const value = await env.KV.get("key", "json");
+
+// Write
+await env.KV.put("key", JSON.stringify(data), {
+  expirationTtl: 3600,
+  metadata: { userId: "123" }
+});
+
+// Delete
+await env.KV.delete("key");
+
+// List keys
+const list = await env.KV.list({ prefix: "user:" });
+```
+
+#### Durable Objects
+Scalable stateful storage for real-time coordination.
+```typescript
+interface Env {
+  DURABLE_OBJECT: DurableObjectNamespace;
+}
+
+// Get Durable Object instance
+const id = env.DURABLE_OBJECT.idFromName("session-123");
+const stub = env.DURABLE_OBJECT.get(id);
+
+// Call methods on Durable Object
+const response = await stub.fetch(request);
+```
+
+#### D1 (Serverless SQL Database)
+Serverless SQL database built for fast, global queries.
+```typescript
+interface Env {
+  DB: D1Database;
+}
+
+// Query
+const result = await env.DB.prepare(
+  "SELECT * FROM users WHERE id = ?"
+).bind(userId).first();
+
+// Insert
+await env.DB.prepare(
+  "INSERT INTO logs (message, timestamp) VALUES (?, ?)"
+).bind(message, Date.now()).run();
+
+// Batch operations
+await env.DB.batch([
+  env.DB.prepare("INSERT INTO users (name) VALUES (?)").bind("Alice"),
+  env.DB.prepare("INSERT INTO users (name) VALUES (?)").bind("Bob"),
+]);
+```
+
+#### R2 (Object Storage)
+Zero-egress object storage for cost-efficient data access.
+```typescript
+interface Env {
+  BUCKET: R2Bucket;
+}
+
+// Upload
+await env.BUCKET.put("file.txt", "content", {
+  httpMetadata: {
+    contentType: "text/plain",
+  },
+});
+
+// Download
+const object = await env.BUCKET.get("file.txt");
+const text = await object?.text();
+
+// List objects
+const list = await env.BUCKET.list({ prefix: "uploads/" });
+
+// Delete
+await env.BUCKET.delete("file.txt");
+```
+
+#### Queues
+Guaranteed delivery with no charges for egress bandwidth.
+```typescript
+interface Env {
+  QUEUE: Queue;
+}
+
+// Send message to queue
+await env.QUEUE.send({
+  userId: "123",
+  action: "process",
+  timestamp: Date.now(),
+});
+
+// Send batch
+await env.QUEUE.sendBatch([
+  { body: { id: 1 } },
+  { body: { id: 2 } },
+]);
+
+// Consumer handler
+export default {
+  async queue(batch: MessageBatch, env: Env): Promise<void> {
+    for (const message of batch.messages) {
+      await processMessage(message.body);
+      message.ack();
+    }
+  },
+};
+```
+
+#### Hyperdrive
+Connect to your external database with accelerated queries, cached at the edge.
+```typescript
+interface Env {
+  HYPERDRIVE: Hyperdrive;
+}
+
+// Connect to external database (PostgreSQL, MySQL)
+const client = postgres(env.HYPERDRIVE.connectionString);
+const result = await client`SELECT * FROM users WHERE id = ${userId}`;
+```
+
+### Compute Bindings
+
+#### Workers AI
+Machine learning models powered by serverless GPUs.
+```typescript
+interface Env {
+  AI: Ai;
+}
+
+// Text generation
+const response = await env.AI.run("@cf/meta/llama-2-7b-chat-int8", {
+  prompt: "What is Cloudflare?",
+});
+
+// Image generation
+const image = await env.AI.run("@cf/stabilityai/stable-diffusion-xl-base-1.0", {
+  prompt: "A sunset over mountains",
+});
+
+// Text embeddings
+const embeddings = await env.AI.run("@cf/baai/bge-base-en-v1.5", {
+  text: ["Hello world", "Goodbye world"],
+});
+```
+
+#### Workflows
+Durable, long-running operations with automatic retries.
+```typescript
+interface Env {
+  WORKFLOW: WorkflowNamespace;
+}
+
+// Create workflow instance
+const instance = await env.WORKFLOW.create({
+  id: "order-123",
+  params: { orderId: "123", userId: "456" },
+});
+
+// Query workflow status
+const status = await instance.status();
+
+// Trigger workflow
+await instance.pause();
+await instance.resume();
+await instance.terminate();
+```
+
+#### Vectorize
+Vector database for AI-powered semantic search.
+```typescript
+interface Env {
+  VECTORIZE: VectorizeIndex;
+}
+
+// Insert vectors
+await env.VECTORIZE.upsert([
+  {
+    id: "doc1",
+    values: [0.1, 0.2, 0.3, ...],
+    metadata: { title: "Document 1" },
+  },
+]);
+
+// Query similar vectors
+const matches = await env.VECTORIZE.query([0.1, 0.2, 0.3, ...], {
+  topK: 5,
+  returnMetadata: true,
+});
+```
+
+#### Browser Rendering
+Programmatic serverless browser instances.
+```typescript
+interface Env {
+  BROWSER: Fetcher;
+}
+
+// Launch browser and take screenshot
+const response = await env.BROWSER.fetch("https://example.com", {
+  cf: {
+    scraper: {
+      screenshot: true,
+    },
+  },
+});
+```
+
+### Media Bindings
+
+#### Cache / CDN
+Global caching for high-performance, low-latency delivery.
+```typescript
+// Use Workers Cache API
+const cache = caches.default;
+const cacheKey = new Request(url, request);
+
+// Check cache
+let response = await cache.match(cacheKey);
+
+if (!response) {
+  // Cache miss, fetch from origin
+  response = await fetch(request);
+  
+  // Cache for 1 hour
+  const cacheableResponse = new Response(response.body, response);
+  cacheableResponse.headers.set("Cache-Control", "public, max-age=3600");
+  
+  await cache.put(cacheKey, cacheableResponse);
+}
+
+return response;
+```
+
+#### Images
+Streamlined image infrastructure from a single API.
+```typescript
+interface Env {
+  IMAGES: Fetcher;
+}
+
+// Resize and optimize image
+const response = await fetch("https://example.com/image.jpg", {
+  cf: {
+    image: {
+      width: 800,
+      height: 600,
+      fit: "cover",
+      quality: 85,
+      format: "webp",
+    },
+  },
+});
+```
+
+### Analytics Engine
+Track custom metrics and analytics.
+```typescript
+interface Env {
+  ANALYTICS: AnalyticsEngineDataset;
+}
+
+// Write data point
+env.ANALYTICS.writeDataPoint({
+  indexes: [userId, "page_view", "/home"],
+  doubles: [responseTime, 200],
+  blobs: [userAgent, JSON.stringify(metadata)],
+});
+```
+
+## Environment Bindings
+
+### Project-Specific Bindings
+Access bindings from the `Env` interface:
+```typescript
+interface Env {
+  PREFERENCES: KVNamespace;          // User configuration storage
+  ANALYTICS?: AnalyticsEngineDataset; // Usage tracking
+  ENVIRONMENT: string;                // dev/staging/production
+  LOG_LEVEL?: string;                 // Logging verbosity
+  VERSION?: string;                   // Application version
+}
+```
+
+### Environment Variables
+Access environment-specific configuration:
+```typescript
+const isProduction = c.env.ENVIRONMENT === "production";
+const logLevel = c.env.LOG_LEVEL ?? "info";
+```
+
+### Configuring Bindings
+Add bindings to `wrangler.jsonc`:
+```jsonc
+{
+  "kv_namespaces": [
+    { "binding": "KV", "id": "your_kv_id" }
+  ],
+  "d1_databases": [
+    { "binding": "DB", "database_id": "your_d1_id" }
+  ],
+  "r2_buckets": [
+    { "binding": "BUCKET", "bucket_name": "my-bucket" }
+  ],
+  "queues": {
+    "producers": [
+      { "binding": "QUEUE", "queue": "my-queue" }
+    ]
+  },
+  "ai": {
+    "binding": "AI"
+  },
+  "vectorize": [
+    { "binding": "VECTORIZE", "index_name": "my-index" }
+  ],
+  "analytics_engine_datasets": [
+    { "binding": "ANALYTICS" }
+  ]
+}
+```
+
+## KV Storage
+
+### Best Practices
+KV is eventually consistent:
+- Expect propagation delays (up to 60 seconds globally)
+- Design for eventual consistency
+- Cache reads when possible
+- Batch operations when feasible
+
+### Key Design
+Use structured keys:
+```typescript
+// User preferences
+const key = `user:${userId}:config`;
+
+// Shared configurations
+const key = `shared:${configId}`;
+
+// Temporary data with TTL
+const key = `temp:${sessionId}`;
+```
+
+### Read Operations
+Always handle missing keys:
+```typescript
+const data = await env.PREFERENCES.get(key, "json");
+if (!data) {
+  return DEFAULT_CONFIG;
+}
+```
+
+### Write Operations
+Use appropriate options:
+```typescript
+// With expiration (for temporary data)
+await env.PREFERENCES.put(
+  key,
+  JSON.stringify(config),
+  { expirationTtl: 3600 }
+);
+
+// Without expiration (for permanent data)
+await env.PREFERENCES.put(
+  key,
+  JSON.stringify(config)
+);
+```
+
+### Metadata
+Attach metadata for filtering:
+```typescript
+await env.PREFERENCES.put(
+  key,
+  value,
+  {
+    metadata: { userId, createdAt: Date.now() },
+  }
+);
+```
+
+## Analytics Engine
+
+### Tracking Events
+Write data points for analytics:
+```typescript
+env.ANALYTICS?.writeDataPoint({
+  indexes: [userId, "config_update"],
+  doubles: [Date.now()],
+  blobs: [JSON.stringify(metadata)],
+});
+```
+
+### Best Practices
+- Use indexes for filterable dimensions
+- Use doubles for numeric metrics
+- Use blobs for additional context (limited to 5KB)
+- Write is fire-and-forget (non-blocking)
+
+## Performance Optimization
+
+### Response Caching
+Use Cache API for responses:
+```typescript
+const cache = caches.default;
+const cacheKey = new Request(url, request);
+let response = await cache.match(cacheKey);
+
+if (!response) {
+  response = await fetch(origin);
+  c.header("Cache-Control", "public, max-age=3600");
+  await cache.put(cacheKey, response.clone());
+}
+```
+
+### CPU Time Limits
+Stay under CPU limits:
+- Standard: 10ms per request
+- Bundled: 50ms per request (our configuration)
+- Unbound: 30 seconds (not applicable)
+
+Optimize for speed:
+- Minimize JSON parsing
+- Avoid complex computations
+- Use streaming for large responses
+- Profile hot paths
+
+### Memory Efficiency
+Workers have 128MB memory limit:
+- Stream large responses
+- Avoid loading entire payloads into memory
+- Clean up references after use
+
+## Request Handling
+
+### Middleware Order
+Middleware order matters:
+1. Security headers (first)
+2. CORS
+3. Request size limits
+4. Observability
+5. Rate limiting (for specific routes)
+6. Validation
+7. Caching
+8. Business logic
+
+### Error Handling
+Use centralized error handler:
+```typescript
+app.onError((error, c) => {
+  const logger = c.get("logger") as Logger;
+  logger.error("Unhandled error", error);
+  
+  return c.json({
+    success: false,
+    error: "Internal server error",
+  }, 500);
+});
+```
+
+### Response Headers
+Set appropriate headers:
+```typescript
+// Security
+c.header("X-Content-Type-Options", "nosniff");
+c.header("X-Frame-Options", "DENY");
+
+// CORS
+c.header("Access-Control-Allow-Origin", origin);
+
+// Caching
+c.header("Cache-Control", "public, max-age=3600");
+```
+
+## Security
+
+### Input Validation
+Validate all inputs:
+- User IDs
+- Configuration bodies
+- Query parameters
+- File uploads
+
+### Rate Limiting
+Implement rate limits:
+```typescript
+// Global rate limit
+app.use("/api/*", RateLimitPresets.moderate);
+
+// Stricter for write operations
+app.post("/api/config/*", RateLimitPresets.writes);
+```
+
+### Content Security
+Limit request sizes:
+```typescript
+app.use("*", requestSizeLimit(100 * 1024)); // 100KB
+```
+
+## Observability
+
+### Structured Logging
+Use structured logging:
+```typescript
+logger.info("Configuration updated", {
+  userId,
+  duration: dbDuration,
+  timestamp: Date.now(),
+});
+```
+
+### Performance Tracking
+Track operation durations:
+```typescript
+perf.mark("operation_start");
+await performOperation();
+perf.mark("operation_end");
+
+const duration = perf.getMarkDuration(
+  "operation_start",
+  "operation_end"
+);
+logger.info("Operation completed", { duration });
+```
+
+### Health Checks
+Implement health check endpoint:
+```typescript
+app.get("/health", async (c) => {
+  const health = await healthCheck(c.env);
+  return c.json(health, health.status === "healthy" ? 200 : 503);
+});
+```
+
+## Scheduled Tasks
+
+### Cron Triggers
+Use scheduled handlers for background tasks:
+```typescript
+export default {
+  fetch: app.fetch,
+  async scheduled(event, env, ctx) {
+    // Cleanup old shared configs
+    await cleanupExpiredConfigs(env);
+    
+    // Aggregate analytics
+    await aggregateAnalytics(env);
+  },
+};
+```
+
+### Execution Context
+Use `ctx.waitUntil()` for async cleanup:
+```typescript
+ctx.waitUntil(
+  performAsyncCleanup()
+);
+```
+
+## Testing
+
+### Use Vitest with Workers Pool
+Configure for Cloudflare Workers testing:
+```typescript
+export default defineWorkersConfig({
+  test: {
+    poolOptions: {
+      workers: {
+        wrangler: { configPath: "./wrangler.jsonc" },
+        miniflare: {
+          compatibilityDate: "2024-11-01",
+        },
+      },
+    },
+  },
+});
+```
+
+### Mock Environment Bindings
+Mock KV and Analytics in tests:
+```typescript
+const env: Env = {
+  PREFERENCES: await getMiniflareDurableObjectStorage(),
+  ANALYTICS: mockAnalyticsEngine(),
+  ENVIRONMENT: "test",
+};
+```
+
+## Deployment
+
+### Environment Strategy
+Use three environments:
+- `dev`: Local development with preview KV
+- `staging`: Pre-production testing
+- `production`: Live environment
+
+### Wrangler Configuration
+Keep environment-specific settings in `wrangler.jsonc`:
+```jsonc
+"env": {
+  "dev": {
+    "vars": { "ENVIRONMENT": "development", "LOG_LEVEL": "debug" }
+  },
+  "production": {
+    "vars": { "ENVIRONMENT": "production", "LOG_LEVEL": "info" }
+  }
+}
+```
+
+### Deployment Commands
+```bash
+# Development
+npm run dev
+
+# Deploy to production
+npm run deploy
+
+# Deploy to specific environment
+wrangler deploy --env staging
+```
+
+## Anti-Patterns to Avoid
+
+### Do Not Use Global State
+Workers instances are reused unpredictably:
+```typescript
+// Bad
+let cachedConfig: Config;
+
+// Good
+async function getConfig(env: Env) {
+  return await env.PREFERENCES.get("config");
+}
+```
+
+### Do Not Assume Synchronous Storage
+KV is asynchronous and eventually consistent:
+```typescript
+// Bad
+await kv.put(key, value);
+const result = await kv.get(key); // May not be immediately available
+
+// Good
+await kv.put(key, value);
+// Use the value you just wrote, don't re-fetch immediately
+return value;
+```
+
+### Do Not Block on External Requests
+Use concurrent requests:
+```typescript
+// Bad
+const a = await fetch(urlA);
+const b = await fetch(urlB);
+
+// Good
+const [a, b] = await Promise.all([
+  fetch(urlA),
+  fetch(urlB),
+]);
+```
+
+---
+
+**Remember**: Cloudflare Workers are designed for speed. Keep request handling fast, cache aggressively, and design for eventual consistency.

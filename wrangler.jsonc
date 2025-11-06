@@ -1,0 +1,86 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
+  "name": "nomoji-dev",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-11-01",
+  "compatibility_flags": [],
+  "vars": {
+    "ENVIRONMENT": "production",
+    "LOG_LEVEL": "info",
+    "VERSION": "1.0.0"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "PREFERENCES",
+      "id": "3d8b4a86eda942a296d51d7f2f8a75b7",
+      "remote": true
+    }
+  ],
+  "analytics_engine_datasets": [
+    {
+      "binding": "ANALYTICS"
+    }
+  ],
+  "logpush": false,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1.0
+  },
+  "routes": [
+    {
+      "pattern": "nomoji.dev",
+      "zone_name": "nomoji.dev",
+      "custom_domain": true
+    }
+  ],
+  "triggers": {
+    "crons": ["0 2 * * *", "0 * * * *"]
+  },
+  "placement": {
+    "mode": "smart"
+  },
+  "limits": {
+    "cpu_ms": 50
+  },
+  "env": {
+    "dev": {
+      "vars": {
+        "ENVIRONMENT": "development",
+        "LOG_LEVEL": "debug"
+      }
+    },
+    "staging": {
+      "name": "nomoji-dev-staging",
+      "vars": {
+        "ENVIRONMENT": "staging",
+        "LOG_LEVEL": "debug"
+      },
+      "routes": [
+        {
+          "pattern": "staging.nomoji.dev",
+          "zone_name": "nomoji.dev",
+          "custom_domain": true
+        }
+      ]
+    },
+    "production": {
+      "name": "nomoji-dev",
+      "vars": {
+        "ENVIRONMENT": "production",
+        "LOG_LEVEL": "info"
+      },
+      "observability": {
+        "enabled": true,
+        "head_sampling_rate": 0.1
+      }
+    }
+  },
+  "unsafe": {
+    "bindings": [],
+    "metadata": {}
+  },
+  "tsconfig": "tsconfig.json",
+  "preserve_file_names": true,
+  "minify": true,
+  "upload_source_maps": true
+}
