@@ -1,7 +1,7 @@
 import { html, raw } from "hono/html";
 
 export const Layout = (props: {
-  children?: any;
+  children?: unknown;
   title?: string;
   description?: string;
   keywords?: string;
