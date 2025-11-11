@@ -1117,6 +1117,7 @@ EOF`}</pre>
         color: var(--secondary);
         font-size: 0.875rem;
         margin-top: 0.5rem;
+        margin-bottom: 1rem;
       }
 
       .help-text code {

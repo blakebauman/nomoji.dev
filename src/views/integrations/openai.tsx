@@ -142,7 +142,9 @@ git commit -m "Add Codex nomoji configuration"`}</code>
             <p>Once configured, Codex will:</p>
             <ul class="feature-list">
               <li>Generate code without emojis in any context</li>
-              <li>Use plain ASCII for console output and progress indicators</li>
+              <li>
+                Use plain ASCII for console output and progress indicators
+              </li>
               <li>Create professional documentation and README files</li>
               <li>Write clean commit messages and code comments</li>
               <li>Follow emoji-free guidelines across all file operations</li>
@@ -226,8 +228,7 @@ const completion = await client.chat.completions.create({
             </p>
             <ul class="feature-list">
               <li>
-                <code>o1</code> - Best at following strict no-emoji
-                instructions
+                <code>o1</code> - Best at following strict no-emoji instructions
               </li>
               <li>
                 <code>o3-mini</code> - Cost-effective with strong instruction
@@ -259,9 +260,7 @@ const completion = await client.chat.completions.create({
                 Use temperature=0 for more deterministic, professional output
               </li>
               <li>Consider caching the system prompt to reduce token usage</li>
-              <li>
-                Monitor completions and provide feedback if emojis appear
-              </li>
+              <li>Monitor completions and provide feedback if emojis appear</li>
               <li>Use reasoning models for stricter constraint adherence</li>
             </ul>
           </div>
@@ -275,7 +274,9 @@ const completion = await client.chat.completions.create({
         <div class="accordion-content">
           <h3>Codex: Rules not being applied?</h3>
           <ol>
-            <li>Verify Codex is installed: <code>codex --version</code></li>
+            <li>
+              Verify Codex is installed: <code>codex --version</code>
+            </li>
             <li>Check your ChatGPT plan includes Codex access</li>
             <li>Re-apply configuration with updated rules</li>
             <li>Try setting rules per-project instead of globally</li>
@@ -287,7 +288,10 @@ const completion = await client.chat.completions.create({
             <li>Try switching to o1 or o3-mini models</li>
             <li>Set temperature to 0 for more consistent output</li>
             <li>Check your system prompt is the first message in the array</li>
-            <li>Refresh rules: <code>curl https://nomoji.dev/api/template/default/openai</code></li>
+            <li>
+              Refresh rules:{" "}
+              <code>curl https://nomoji.dev/api/template/default/openai</code>
+            </li>
           </ol>
         </div>
       </details>
@@ -430,6 +434,7 @@ const completion = await client.chat.completions.create({
         color: var(--secondary);
         font-size: 0.875rem;
         margin-top: 0.5rem;
+        margin-bottom: 1rem;
         line-height: 1.5;
       }
       
@@ -471,4 +476,3 @@ const completion = await client.chat.completions.create({
     </main>
   </Layout>
 );
-

@@ -1073,18 +1073,41 @@ export const Layout = (props: {
       margin-bottom: 1rem;
     }
 
-    .feature-list {
-      list-style: none;
-      padding: 0;
+    .content-section ol, .content-section ul {
+      margin: 1rem 0;
+      padding-left: 1.5rem;
     }
 
-    .feature-list li {
+    .content-section ul {
+      list-style-type: disc;
+    }
+
+    .content-section ol {
+      list-style-type: decimal;
+    }
+
+    .content-section li {
+      margin: 0.5rem 0;
+      line-height: 1.6;
+    }
+
+    .feature-list,
+    .content-section .feature-list {
+      list-style: none !important;
+      padding: 0;
+      padding-left: 0;
+    }
+
+    .feature-list li,
+    .content-section .feature-list li {
       padding: 0.5rem 0;
       padding-left: 1.5rem;
       position: relative;
+      margin: 0.5rem 0;
     }
 
-    .feature-list li:before {
+    .feature-list li:before,
+    .content-section .feature-list li:before {
       content: "✓";
       position: absolute;
       left: 0;
@@ -1262,6 +1285,39 @@ export const Layout = (props: {
 
     .related-links a:hover {
       text-decoration: underline;
+    }
+
+    .warning-text {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      color: var(--secondary);
+      font-size: 0.875rem;
+    }
+
+    .warning-icon {
+      flex-shrink: 0;
+      color: var(--warning);
+    }
+
+    .help-text {
+      color: var(--secondary);
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .help-text code {
+      font-size: 0.85em;
+    }
+
+    .example-note {
+      color: var(--secondary);
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+      font-style: italic;
     }
 
     @media (prefers-color-scheme: dark) {
