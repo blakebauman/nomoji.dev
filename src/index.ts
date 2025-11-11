@@ -141,9 +141,7 @@ app.get(
   apiReference({
     theme: "none",
     withDefaultFonts: false,
-    spec: {
-      url: "/openapi.json",
-    },
+    url: "/openapi.json",
     pageTitle: "nomoji.dev API Documentation",
     metaData: {
       title: "nomoji.dev API Docs",

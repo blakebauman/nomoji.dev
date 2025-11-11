@@ -23,10 +23,10 @@ export function securityHeaders() {
         "Content-Security-Policy",
         [
           "default-src 'self'",
-          "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net", // Allow Scalar CDN
-          "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net", // Allow Scalar CDN styles
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net", // Allow Scalar CDN and WebAssembly
+          "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.cdnfonts.com", // Allow Scalar CDN styles and fonts
           "img-src 'self' data: https:",
-          "font-src 'self' data: https://cdn.jsdelivr.net", // Allow Scalar fonts
+          "font-src 'self' data: https://cdn.jsdelivr.net https://fonts.cdnfonts.com", // Allow Scalar fonts
           "connect-src 'self' http://localhost:* https://nomoji.dev https://api.nomoji.dev https://cdn.jsdelivr.net", // Allow API calls
           "frame-ancestors 'none'",
           "base-uri 'self'",
