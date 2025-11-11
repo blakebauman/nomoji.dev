@@ -374,6 +374,11 @@ app.get("/integrations/git-hooks", (c) => {
   return c.html(GitHooksIntegrationPage(theme));
 });
 
+// Static assets are served via Wrangler's assets configuration
+// See wrangler.jsonc for assets directory configuration
+// These routes will be handled by Wrangler's static asset handler in production
+// For development, Wrangler dev will serve files from the public directory
+
 // SEO and discoverability endpoints
 app.get("/robots.txt", (c) => {
   return c.text(generateRobotsTxt(), 200, {

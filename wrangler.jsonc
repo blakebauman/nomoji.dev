@@ -82,5 +82,9 @@
   "tsconfig": "tsconfig.json",
   "preserve_file_names": true,
   "minify": true,
-  "upload_source_maps": true
+  "upload_source_maps": true,
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  }
 }

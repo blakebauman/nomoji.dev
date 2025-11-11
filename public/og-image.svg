@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  
+    <rect width="1200" height="630" fill="#0a0a0a"/>
+    <text x="600" y="280" font-family="ui-monospace, monospace" font-size="80" font-weight="bold" fill="#ffffff" text-anchor="middle">nomoji.dev</text>
+    <text x="600" y="360" font-family="ui-monospace, monospace" font-size="32" fill="#a0a0a0" text-anchor="middle">Stop AI from Adding Emojis to Your Code</text>
+    <line x1="200" y1="450" x2="1000" y2="450" stroke="#333333" stroke-width="2"/>
+    <text x="600" y="500" font-family="ui-monospace, monospace" font-size="24" fill="#666666" text-anchor="middle">Professional code deserves professional standards</text>
+  
+</svg>
