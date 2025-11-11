@@ -3,13 +3,13 @@ lockfileVersion: '6.0'
 dependencies:
   '@hono/zod-openapi':
     specifier: ^1.1.4
-    version: 1.1.4(hono@4.6.10)(zod@4.1.12)
+    version: 1.1.4(hono@4.10.3)(zod@4.1.12)
   '@scalar/hono-api-reference':
     specifier: ^0.9.23
-    version: 0.9.23(hono@4.6.10)
+    version: 0.9.23(hono@4.10.3)
   hono:
-    specifier: ^4.6.10
-    version: 4.6.10
+    specifier: ^4.10.3
+    version: 4.10.3
   zod:
     specifier: ^4.1.12
     version: 4.1.12
@@ -701,7 +701,7 @@ packages:
     dev: true
     optional: true
 
-  /@hono/zod-openapi@1.1.4(hono@4.6.10)(zod@4.1.12):
+  /@hono/zod-openapi@1.1.4(hono@4.10.3)(zod@4.1.12):
     resolution: {integrity: sha512-4BbOtd6oKg20yo6HLluVbEycBLLIfdKX5o/gUSoKZ2uBmeP4Og/VDfIX3k9pbNEX5W3fRkuPeVjGA+zaQDVY1A==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
@@ -709,19 +709,19 @@ packages:
       zod: ^4.0.0
     dependencies:
       '@asteasolutions/zod-to-openapi': 8.1.0(zod@4.1.12)
-      '@hono/zod-validator': 0.7.4(hono@4.6.10)(zod@4.1.12)
-      hono: 4.6.10
+      '@hono/zod-validator': 0.7.4(hono@4.10.3)(zod@4.1.12)
+      hono: 4.10.3
       openapi3-ts: 4.5.0
       zod: 4.1.12
     dev: false
 
-  /@hono/zod-validator@0.7.4(hono@4.6.10)(zod@4.1.12):
+  /@hono/zod-validator@0.7.4(hono@4.10.3)(zod@4.1.12):
     resolution: {integrity: sha512-biKGn3BRJVaftZlIPMyK+HCe/UHAjJ6sH0UyXe3+v0OcgVr9xfImDROTJFLtn9e3XEEAHGZIM9U6evu85abm8Q==}
     peerDependencies:
       hono: '>=3.9.0'
       zod: ^3.25.0 || ^4.0.0
     dependencies:
-      hono: 4.6.10
+      hono: 4.10.3
       zod: 4.1.12
     dev: false
 
@@ -1122,14 +1122,14 @@ packages:
       '@scalar/types': 0.4.0
     dev: false
 
-  /@scalar/hono-api-reference@0.9.23(hono@4.6.10):
+  /@scalar/hono-api-reference@0.9.23(hono@4.10.3):
     resolution: {integrity: sha512-Vi7ypOwJO7x1+lVFmh4z6ljqxMThGUWhCA3Z4eBenS8sv/eSYmucI/on1AjItqt2yYBNTZcAxhN8GsCeECR5FA==}
     engines: {node: '>=20'}
     peerDependencies:
       hono: ^4.10.3
     dependencies:
       '@scalar/core': 0.3.21
-      hono: 4.6.10
+      hono: 4.10.3
     dev: false
 
   /@scalar/openapi-types@0.5.1:
@@ -1486,8 +1486,8 @@ packages:
     resolution: {integrity: sha512-lkX1HJXwyMcprw/5YUZc2s7DrpAiHB21/V+E1rHUrVNokkvB6bqMzT0VfV6/86ZNabt1k14YOIaT7nDvOX3Iiw==}
     dev: true
 
-  /hono@4.6.10:
-    resolution: {integrity: sha512-IXXNfRAZEahFnWBhUUlqKEGF9upeE6hZoRZszvNkyAz/CYp+iVbxm3viMvStlagRJohjlBRGOQ7f4jfcV0XMGg==}
+  /hono@4.10.3:
+    resolution: {integrity: sha512-2LOYWUbnhdxdL8MNbNg9XZig6k+cZXm5IjHn2Aviv7honhBMOHb+jxrKIeJRZJRmn+htUCKhaicxwXuUDlchRA==}
     engines: {node: '>=16.9.0'}
     dev: false
 
