@@ -471,10 +471,12 @@ app.openapi(apiInfoRoute, (c) => {
     version: "1.0.0",
     description: "Control emoji usage in AI-generated code and documentation",
     endpoints: {
-      skill: "/api/skill/:userId",
+      skill: "/skill",
+      skillApi: "/api/skill/:userId",
       config: "/api/config/:userId",
       rules: "/api/rules/:userId",
       template: "/api/template/:userId/:assistant",
+      json: "/api/json/:userId",
       presets: "/api/presets",
       analyze: "/api/analyze",
       shared: "/api/shared/:configId",

@@ -166,12 +166,12 @@ export function generateApiSitemap(): string {
     "/api/presets",
     "/api/config/default",
     "/api/rules/default",
-    "/api/cursor-rules/default",
-    "/api/claude/default",
+    "/api/skill/default",
     "/api/template/default/cursor",
     "/api/template/default/copilot",
     "/api/template/default/gemini",
     "/api/json/default",
+    "/api/analyze",
   ];
 
   const urlElements = apiEndpoints
@@ -355,14 +355,19 @@ export function generateAIFriendlyData(): string {
             description: "Update user configuration",
           },
           {
-            path: "/api/cursor-rules/:userId",
+            path: "/api/skill/:userId",
             method: "GET",
-            description: "Download Cursor rules file",
+            description: "Download Agent Skill file (SKILL.md)",
           },
           {
-            path: "/api/claude/:userId",
+            path: "/api/template/:userId/:assistant",
             method: "GET",
-            description: "Download Claude Code subagent",
+            description: "Get template for a specific AI assistant",
+          },
+          {
+            path: "/api/json/:userId",
+            method: "GET",
+            description: "Get configuration as JSON",
           },
           {
             path: "/api/analyze",

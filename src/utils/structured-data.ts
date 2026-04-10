@@ -75,7 +75,7 @@ export function generateSoftwareApplicationData(): string {
       "Shareable team configurations",
     ],
     installUrl: "https://nomoji.dev/setup",
-    downloadUrl: "https://nomoji.dev/api/cursor-rules/default",
+    downloadUrl: "https://nomoji.dev/skill",
     softwareVersion: "1.0.0",
     releaseNotes: "Initial release with full AI assistant support",
     license: "https://opensource.org/licenses/MIT",
