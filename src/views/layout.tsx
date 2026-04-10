@@ -1053,6 +1053,7 @@ export const Layout = (props: {
       border-bottom: 1px solid var(--border);
       margin-bottom: clamp(2rem, 4vw, 4rem);
       position: relative;
+      text-align: center;
     }
 
     .home-header h1 {
@@ -1067,7 +1068,6 @@ export const Layout = (props: {
       font-size: clamp(0.95rem, 1.8vw, 1.4rem);
       color: var(--secondary);
       line-height: 1.5;
-      max-width: 60ch;
     }
 
     .home-install {

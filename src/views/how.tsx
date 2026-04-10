@@ -292,17 +292,6 @@ export const HowPage = (theme?: string) => (
           document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
         });
       });
-
-      function copy(id) {
-        const el = document.getElementById(id);
-        const text = el.textContent || el.innerText;
-        navigator.clipboard.writeText(text.trim()).then(() => {
-          const btn = el.nextElementSibling;
-          const orig = btn.textContent;
-          btn.textContent = 'Copied!';
-          setTimeout(() => btn.textContent = orig, 2000);
-        });
-      }
     `}</script>
   </Layout>
 );
