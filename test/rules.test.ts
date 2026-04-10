@@ -1,13 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_CONFIG, PRESETS } from "../src/config/defaults";
-import { generateClaudeSubagent } from "../src/rules/claude";
-import { generateCursorRules } from "../src/rules/cursor";
 import {
   generateJSON,
-  generateLegacyCursorRules,
   generateRules,
   generateTemplate,
 } from "../src/rules/generator";
+import { generateSkill } from "../src/rules/skill";
 
 describe("Rule Generators", () => {
   describe("generateRules", () => {
@@ -32,66 +30,49 @@ describe("Rule Generators", () => {
           ...DEFAULT_CONFIG.contexts,
           documentation: {
             ...DEFAULT_CONFIG.contexts.documentation,
-            customMessage: "Custom documentation rules",
+            severity: "strict" as const,
           },
         },
       };
       const rules = generateRules(config);
 
-      expect(rules).toContain("Custom documentation rules");
+      expect(rules).toContain("DOCUMENTATION");
     });
   });
 
-  describe("generateClaudeSubagent", () => {
-    it("should generate valid Claude subagent format", () => {
-      const subagent = generateClaudeSubagent(DEFAULT_CONFIG);
+  describe("generateSkill", () => {
+    it("should generate valid Agent Skill format", () => {
+      const skill = generateSkill(DEFAULT_CONFIG);
 
-      expect(subagent).toBeTruthy();
-      expect(subagent).toContain("nomoji");
-      expect(subagent.length).toBeGreaterThan(0);
+      expect(skill).toBeTruthy();
+      expect(skill).toContain("nomoji");
+      expect(skill.length).toBeGreaterThan(0);
     });
 
     it("should include context information in output", () => {
-      const subagent = generateClaudeSubagent(PRESETS.strict);
+      const skill = generateSkill(PRESETS.strict);
 
-      expect(subagent).toBeTruthy();
-      expect(subagent.toLowerCase()).toContain("emoji");
-      expect(subagent.toLowerCase()).toContain("strict");
+      expect(skill).toBeTruthy();
+      expect(skill.toLowerCase()).toContain("emoji");
     });
   });
 
-  describe("generateCursorRules", () => {
+  describe("generateTemplate (cursor)", () => {
     it("should generate valid Cursor rules format", () => {
-      const rules = generateCursorRules(DEFAULT_CONFIG);
+      const rules = generateTemplate(DEFAULT_CONFIG, "cursor");
 
       expect(rules).toBeTruthy();
-      expect(rules.toLowerCase()).toContain("nomoji" || "emoji");
+      expect(rules.toLowerCase()).toContain("emoji");
       expect(rules.length).toBeGreaterThan(0);
     });
 
     it("should adapt to different strictness levels", () => {
-      const strictRules = generateCursorRules(PRESETS.strict);
-      const relaxedRules = generateCursorRules(PRESETS.relaxed);
+      const strictRules = generateTemplate(PRESETS.strict, "cursor");
+      const relaxedRules = generateTemplate(PRESETS.relaxed, "cursor");
 
       expect(strictRules).not.toEqual(relaxedRules);
       expect(strictRules.length).toBeGreaterThan(0);
       expect(relaxedRules.length).toBeGreaterThan(0);
-    });
-  });
-
-  describe("generateLegacyCursorRules", () => {
-    it("should generate legacy .cursorrules format", () => {
-      const rules = generateLegacyCursorRules(DEFAULT_CONFIG);
-
-      expect(rules).toBeTruthy();
-      expect(rules.length).toBeGreaterThan(0);
-    });
-
-    it("should be compatible with old format", () => {
-      const rules = generateLegacyCursorRules(DEFAULT_CONFIG);
-
-      // Should not contain markdown front-matter
-      expect(rules).not.toMatch(/^---/);
     });
   });
 
