@@ -31,14 +31,13 @@ import {
   shareConfigRoute,
   updateUserConfigRoute,
 } from "./routes/openapi";
-import { generateSkill } from "./rules/skill";
-
 import {
   generateJSON,
   generateLegacyCursorRules,
   generateRules,
   generateTemplate,
 } from "./rules/generator";
+import { generateSkill } from "./rules/skill";
 import type { Env, NomojiConfig, Variables } from "./types";
 import { analyzeEmojis } from "./utils/emoji";
 import {
@@ -332,6 +331,32 @@ function getThemeFromRequest(_c: Context): string {
   return "light"; // Client-side JS will immediately set correct theme from localStorage
 }
 
+// Clean skill URLs — default config, no /api prefix
+app.get("/skill", async (c) => {
+  try {
+    const config = await getOrCreateUserConfig(c.env, "default");
+    const skill = generateSkill(config, "default");
+    c.header("Content-Disposition", 'attachment; filename="SKILL.md"');
+    c.header("Content-Type", "text/markdown");
+    return c.text(skill);
+  } catch (_error) {
+    return c.text("Error generating Agent Skill file", 500);
+  }
+});
+
+app.get("/skill/:assistant", async (c) => {
+  const assistant = c.req.param("assistant");
+  try {
+    const config = await getOrCreateUserConfig(c.env, "default");
+    const content = generateTemplate(config, assistant);
+    c.header("Content-Disposition", 'attachment; filename="SKILL.md"');
+    c.header("Content-Type", "text/markdown");
+    return c.text(content);
+  } catch (_error) {
+    return c.text("Error generating skill file", 500);
+  }
+});
+
 // Website pages (non-OpenAPI)
 app.get("/", (c) => {
   const theme = getThemeFromRequest(c);
@@ -350,9 +375,15 @@ app.get("/integrations/agent-skills", (c) => {
 });
 
 // Per-tool redirects for old URLs
-app.get("/integrations/cursor", (c) => c.redirect("/integrations/agent-skills", 301));
-app.get("/integrations/gemini", (c) => c.redirect("/integrations/agent-skills", 301));
-app.get("/integrations/openai", (c) => c.redirect("/integrations/agent-skills", 301));
+app.get("/integrations/cursor", (c) =>
+  c.redirect("/integrations/agent-skills", 301),
+);
+app.get("/integrations/gemini", (c) =>
+  c.redirect("/integrations/agent-skills", 301),
+);
+app.get("/integrations/openai", (c) =>
+  c.redirect("/integrations/agent-skills", 301),
+);
 
 // Claude Code has its own focused install guide
 app.get("/integrations/claude-code", (c) => {
@@ -443,7 +474,8 @@ app.openapi(apiInfoRoute, (c) => {
       shared: "/api/shared/:configId",
     },
     assistants: {
-      skill: "Agent Skills (35+ tools) - Download SKILL.md to .claude/skills/nomoji/",
+      skill:
+        "Agent Skills (35+ tools) - Download SKILL.md to .claude/skills/nomoji/",
       claude: "Claude Code - alias for /api/skill/:userId",
       cursor: "Cursor - alias for /api/skill/:userId",
       copilot: "GitHub Copilot - Get instructions format",

@@ -197,7 +197,7 @@ export const SetupPage = (theme?: string) => {
                   <p class="help-text">
                     Or{" "}
                     <a
-                      href="/api/skill/default"
+                      href="/skill"
                       download
                       class="download-link"
                       data-base-url="/api/skill"
@@ -252,7 +252,9 @@ export const SetupPage = (theme?: string) => {
                 <div class="step-content">
                   <h3>Create the skills directory</h3>
                   <div class="code-block-with-copy">
-                    <code id="claude-step1">mkdir -p .claude/skills/nomoji</code>
+                    <code id="claude-step1">
+                      mkdir -p .claude/skills/nomoji
+                    </code>
                     <button
                       type="button"
                       class="copy-btn"
@@ -285,7 +287,7 @@ export const SetupPage = (theme?: string) => {
                   <p class="help-text">
                     Or{" "}
                     <a
-                      href="/api/skill/default"
+                      href="/skill"
                       download
                       class="download-link"
                       data-base-url="/api/skill"

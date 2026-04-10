@@ -46,10 +46,11 @@ export const HomePage = (theme?: string) => {
 
         <section class="hero">
           <p class="hero-text">
-            AI tools love adding emojis everywhere.{" "}
-            <strong>nomoji.dev</strong> publishes the official nomoji{" "}
-            <a href="https://agentskills.io">Agent Skill</a> — one install, works
-            across Claude Code, Cursor, OpenAI Codex, Gemini CLI, and 35+ tools.
+            AI tools love adding emojis everywhere. <strong>nomoji.dev</strong>{" "}
+            publishes the official nomoji{" "}
+            <a href="https://agentskills.io">Agent Skill</a> — one install,
+            works across Claude Code, Cursor, OpenAI Codex, Gemini CLI, and 35+
+            tools.
           </p>
           <div class="hero-actions">
             <a href="/setup" class="btn btn-primary">
@@ -71,60 +72,49 @@ export const HomePage = (theme?: string) => {
           <div class="install-primary">
             <div class="code-block">
               <code id="install-cmd">
-                mkdir -p .claude/skills/nomoji && curl
-                https://nomoji.dev/api/skill/default -o
-                .claude/skills/nomoji/SKILL.md
+                mkdir -p .claude/skills/nomoji && curl https://nomoji.dev/skill
+                -o .claude/skills/nomoji/SKILL.md
               </code>
             </div>
             <div class="hero-actions">
               <a href="/integrations/agent-skills" class="btn btn-primary">
                 All install guides →
               </a>
-              <a
-                href="/api/skill/default"
-                class="btn btn-secondary"
-                download
-              >
+              <a href="/skill" class="btn btn-secondary" download>
                 Download SKILL.md
               </a>
             </div>
           </div>
 
-          <div class="paths-table-container">
-            <table class="paths-table">
-              <thead>
-                <tr>
-                  <th>Tool</th>
-                  <th>Install path</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Claude Code</td>
-                  <td>
-                    <code>.claude/skills/nomoji/SKILL.md</code>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Cursor</td>
-                  <td>
-                    <code>.cursor/skills/nomoji/SKILL.md</code>
-                  </td>
-                </tr>
-                <tr>
-                  <td>OpenAI Codex</td>
-                  <td>
-                    <code>.agents/skills/nomoji/SKILL.md</code>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Gemini CLI</td>
-                  <td>
-                    <code>.gemini/skills/nomoji/SKILL.md</code>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="install-cards">
+            <div class="install-card">
+              <div class="install-card-icon">CC</div>
+              <div class="install-card-name">Claude Code</div>
+              <code class="install-card-path">
+                .claude/skills/nomoji/SKILL.md
+              </code>
+            </div>
+            <div class="install-card">
+              <div class="install-card-icon">CR</div>
+              <div class="install-card-name">Cursor</div>
+              <code class="install-card-path">
+                .cursor/skills/nomoji/SKILL.md
+              </code>
+            </div>
+            <div class="install-card">
+              <div class="install-card-icon">OC</div>
+              <div class="install-card-name">OpenAI Codex</div>
+              <code class="install-card-path">
+                .agents/skills/nomoji/SKILL.md
+              </code>
+            </div>
+            <div class="install-card">
+              <div class="install-card-icon">GC</div>
+              <div class="install-card-name">Gemini CLI</div>
+              <code class="install-card-path">
+                .gemini/skills/nomoji/SKILL.md
+              </code>
+            </div>
           </div>
 
           <p class="other-integrations">

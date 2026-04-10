@@ -46,8 +46,7 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
             <span class="step-label">2. Download skill</span>
             <div class="code-with-copy">
               <code id="cmd2">
-                curl https://nomoji.dev/api/skill/default -o
-                .claude/skills/nomoji/SKILL.md
+                curl https://nomoji.dev/skill -o .claude/skills/nomoji/SKILL.md
               </code>
               <button type="button" onclick="copy('cmd2')">
                 Copy
@@ -199,15 +198,12 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
           <h3>Skill Not Being Applied?</h3>
           <ol>
             <li>
-              Check file location:{" "}
-              <code>.claude/skills/nomoji/SKILL.md</code>
+              Check file location: <code>.claude/skills/nomoji/SKILL.md</code>
             </li>
             <li>
               Verify YAML frontmatter is present (name and description fields)
             </li>
-            <li>
-              Make sure description explains when to use the skill
-            </li>
+            <li>Make sure description explains when to use the skill</li>
             <li>Try explicit invocation: "Use nomoji to check this"</li>
           </ol>
 
@@ -215,8 +211,7 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
           <ol>
             <li>Check the rules in SKILL.md match your expectations</li>
             <li>
-              Update your configuration at{" "}
-              <a href="/setup">nomoji.dev/setup</a>
+              Update your configuration at <a href="/setup">nomoji.dev/setup</a>
             </li>
             <li>Re-download a fresh SKILL.md</li>
           </ol>

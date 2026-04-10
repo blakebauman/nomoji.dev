@@ -105,18 +105,18 @@ export const GitHooksIntegrationPage = (theme?: string) => (
             <h3>Pre-commit Hook</h3>
             <p>Runs before each commit:</p>
             <ul>
-              <li>Validates staged files are emoji-free</li>
-              <li>Checks code, documentation, and comments</li>
-              <li>Runs linting and type checking</li>
+              <li>Scans all staged files for emoji</li>
+              <li>Covers code, docs, config, and comments</li>
+              <li>Reports file and line number of each match</li>
             </ul>
           </div>
           <div class="comparison-item">
             <h3>Commit-msg Hook</h3>
             <p>Validates commit messages:</p>
             <ul>
-              <li>Checks message for emojis</li>
-              <li>Enforces conventional commit format</li>
-              <li>Ensures professional standards</li>
+              <li>Checks the commit message for emoji</li>
+              <li>Blocks the commit if any are found</li>
+              <li>Works with all commit workflows</li>
             </ul>
           </div>
         </div>

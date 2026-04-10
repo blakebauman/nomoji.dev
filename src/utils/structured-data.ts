@@ -117,7 +117,7 @@ export function generateFAQStructuredData(): string {
         name: "How do I use nomoji with Cursor?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "For Cursor, install the nomoji Agent Skill: mkdir -p .cursor/skills/nomoji && curl https://nomoji.dev/api/skill/default -o .cursor/skills/nomoji/SKILL.md",
+          text: "For Cursor, install the nomoji Agent Skill: mkdir -p .cursor/skills/nomoji && curl https://nomoji.dev/skill -o .cursor/skills/nomoji/SKILL.md",
         },
       },
       {
@@ -125,7 +125,7 @@ export function generateFAQStructuredData(): string {
         name: "How do I use nomoji with Claude Code?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "For Claude Code, install the nomoji Agent Skill: mkdir -p .claude/skills/nomoji && curl https://nomoji.dev/api/skill/default -o .claude/skills/nomoji/SKILL.md. Claude Code will automatically discover and apply the skill.",
+          text: "For Claude Code, install the nomoji Agent Skill: mkdir -p .claude/skills/nomoji && curl https://nomoji.dev/skill -o .claude/skills/nomoji/SKILL.md. Claude Code will automatically discover and apply the skill.",
         },
       },
       {
@@ -197,7 +197,7 @@ export function generateHowToStructuredData(): string {
       {
         "@type": "HowToStep",
         name: "Download the Agent Skill",
-        text: "Install the nomoji Agent Skill: mkdir -p .claude/skills/nomoji && curl https://nomoji.dev/api/skill/default -o .claude/skills/nomoji/SKILL.md. Replace .claude with .cursor, .agents, or .gemini for other tools.",
+        text: "Install the nomoji Agent Skill: mkdir -p .claude/skills/nomoji && curl https://nomoji.dev/skill -o .claude/skills/nomoji/SKILL.md. Replace .claude with .cursor, .agents, or .gemini for other tools.",
         position: 2,
       },
       {

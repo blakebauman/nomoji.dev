@@ -90,7 +90,14 @@ export function generateTemplate(
  */
 export function generateJSON(config: NomojiConfig): string {
   return JSON.stringify(
-    { nomoji: { version: config.version, enabled: config.enabled, rules: generateRules(config), config } },
+    {
+      nomoji: {
+        version: config.version,
+        enabled: config.enabled,
+        rules: generateRules(config),
+        config,
+      },
+    },
     null,
     2,
   );
@@ -101,5 +108,5 @@ export function generateJSON(config: NomojiConfig): string {
  * returns something informative.
  */
 export function generateLegacyCursorRules(config: NomojiConfig): string {
-  return `# DEPRECATED — use the Agent Skill instead\n# Install: mkdir -p .cursor/skills/nomoji && curl https://nomoji.dev/api/skill/default -o .cursor/skills/nomoji/SKILL.md\n\nVersion: ${config.version}\n`;
+  return `# DEPRECATED — use the Agent Skill instead\n# Install: mkdir -p .cursor/skills/nomoji && curl https://nomoji.dev/skill -o .cursor/skills/nomoji/SKILL.md\n\nVersion: ${config.version}\n`;
 }

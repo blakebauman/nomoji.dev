@@ -60,8 +60,7 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
               <div class="code-with-copy">
                 <code id="cc-project">
                   mkdir -p .claude/skills/nomoji && curl
-                  https://nomoji.dev/api/skill/default -o
-                  .claude/skills/nomoji/SKILL.md
+                  https://nomoji.dev/skill -o .claude/skills/nomoji/SKILL.md
                 </code>
                 <button type="button" onclick="copy('cc-project')">
                   Copy
@@ -73,8 +72,7 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
               <div class="code-with-copy">
                 <code id="cc-user">
                   mkdir -p ~/.claude/skills/nomoji && curl
-                  https://nomoji.dev/api/skill/default -o
-                  ~/.claude/skills/nomoji/SKILL.md
+                  https://nomoji.dev/skill -o ~/.claude/skills/nomoji/SKILL.md
                 </code>
                 <button type="button" onclick="copy('cc-user')">
                   Copy
@@ -84,7 +82,8 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
           </div>
           <p class="note">
             Skill is auto-discovered. Use <code>/nomoji</code> to invoke
-            manually, or Claude applies it automatically when generating content.
+            manually, or Claude applies it automatically when generating
+            content.
           </p>
           <a href="/integrations/claude-code" class="btn-link">
             Full Claude Code guide →
@@ -109,8 +108,7 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
               <div class="code-with-copy">
                 <code id="cursor-project">
                   mkdir -p .cursor/skills/nomoji && curl
-                  https://nomoji.dev/api/skill/default -o
-                  .cursor/skills/nomoji/SKILL.md
+                  https://nomoji.dev/skill -o .cursor/skills/nomoji/SKILL.md
                 </code>
                 <button type="button" onclick="copy('cursor-project')">
                   Copy
@@ -120,11 +118,11 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
             <div class="install-option">
               <h4>Via Cursor UI</h4>
               <p>
-                In Cursor Agent chat, paste the skill URL and Cursor will
-                import it automatically:
+                In Cursor Agent chat, paste the skill URL and Cursor will import
+                it automatically:
               </p>
               <div class="code-with-copy">
-                <code id="cursor-url">https://nomoji.dev/api/skill/default</code>
+                <code id="cursor-url">https://nomoji.dev/skill</code>
                 <button type="button" onclick="copy('cursor-url')">
                   Copy
                 </button>
@@ -146,9 +144,8 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
           </div>
           <p>
             Codex loads skills from <code>.agents/skills/</code> (project) or{" "}
-            <code>~/.agents/skills/</code> (user). The{" "}
-            <code>.agents/</code> path takes precedence over tool-specific
-            directories.
+            <code>~/.agents/skills/</code> (user). The <code>.agents/</code>{" "}
+            path takes precedence over tool-specific directories.
           </p>
           <div class="install-tabs">
             <div class="install-option">
@@ -156,8 +153,7 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
               <div class="code-with-copy">
                 <code id="codex-project">
                   mkdir -p .agents/skills/nomoji && curl
-                  https://nomoji.dev/api/skill/default -o
-                  .agents/skills/nomoji/SKILL.md
+                  https://nomoji.dev/skill -o .agents/skills/nomoji/SKILL.md
                 </code>
                 <button type="button" onclick="copy('codex-project')">
                   Copy
@@ -169,8 +165,7 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
               <div class="code-with-copy">
                 <code id="codex-user">
                   mkdir -p ~/.agents/skills/nomoji && curl
-                  https://nomoji.dev/api/skill/default -o
-                  ~/.agents/skills/nomoji/SKILL.md
+                  https://nomoji.dev/skill -o ~/.agents/skills/nomoji/SKILL.md
                 </code>
                 <button type="button" onclick="copy('codex-user')">
                   Copy
@@ -214,8 +209,7 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
               <div class="code-with-copy">
                 <code id="gemini-manual">
                   mkdir -p .gemini/skills/nomoji && curl
-                  https://nomoji.dev/api/skill/default -o
-                  .gemini/skills/nomoji/SKILL.md
+                  https://nomoji.dev/skill -o .gemini/skills/nomoji/SKILL.md
                 </code>
                 <button type="button" onclick="copy('gemini-manual')">
                   Copy
@@ -227,8 +221,7 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
               <div class="code-with-copy">
                 <code id="gemini-user">
                   mkdir -p ~/.gemini/skills/nomoji && curl
-                  https://nomoji.dev/api/skill/default -o
-                  ~/.gemini/skills/nomoji/SKILL.md
+                  https://nomoji.dev/skill -o ~/.gemini/skills/nomoji/SKILL.md
                 </code>
                 <button type="button" onclick="copy('gemini-user')">
                   Copy
@@ -319,8 +312,8 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
             auto-apply the skill; front-loaded with key terms
           </li>
           <li>
-            <strong>allowed-tools</strong> — pre-approves Read, Grep, Glob,
-            Bash so the skill runs without per-use permission prompts
+            <strong>allowed-tools</strong> — pre-approves Read, Grep, Glob, Bash
+            so the skill runs without per-use permission prompts
           </li>
         </ul>
       </div>
@@ -358,9 +351,7 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
             <a href="/docs">API Documentation</a>
           </li>
           <li>
-            <a href="https://agentskills.io">
-              agentskills.io — Open Standard
-            </a>
+            <a href="https://agentskills.io">agentskills.io — Open Standard</a>
           </li>
           <li>
             <a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview">

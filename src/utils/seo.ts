@@ -292,27 +292,27 @@ export function generateAIFriendlyData(): string {
             name: "Claude Code",
             type: "Agent Skills-compatible AI coding assistant",
             setup:
-              "mkdir -p .claude/skills/nomoji && curl https://nomoji.dev/api/skill/default -o .claude/skills/nomoji/SKILL.md",
+              "mkdir -p .claude/skills/nomoji && curl https://nomoji.dev/skill -o .claude/skills/nomoji/SKILL.md",
             recommended: true,
           },
           {
             name: "Cursor",
             type: "Agent Skills-compatible AI coding assistant",
             setup:
-              "mkdir -p .cursor/skills/nomoji && curl https://nomoji.dev/api/skill/default -o .cursor/skills/nomoji/SKILL.md",
+              "mkdir -p .cursor/skills/nomoji && curl https://nomoji.dev/skill -o .cursor/skills/nomoji/SKILL.md",
             recommended: true,
           },
           {
             name: "OpenAI Codex",
             type: "Agent Skills-compatible AI coding agent",
             setup:
-              "mkdir -p .agents/skills/nomoji && curl https://nomoji.dev/api/skill/default -o .agents/skills/nomoji/SKILL.md",
+              "mkdir -p .agents/skills/nomoji && curl https://nomoji.dev/skill -o .agents/skills/nomoji/SKILL.md",
           },
           {
             name: "Gemini CLI",
             type: "Agent Skills-compatible command-line AI assistant",
             setup:
-              "mkdir -p .gemini/skills/nomoji && curl https://nomoji.dev/api/skill/default -o .gemini/skills/nomoji/SKILL.md",
+              "mkdir -p .gemini/skills/nomoji && curl https://nomoji.dev/skill -o .gemini/skills/nomoji/SKILL.md",
           },
           {
             name: "GitHub Copilot",

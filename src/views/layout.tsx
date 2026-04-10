@@ -353,6 +353,127 @@ export const Layout = (props: {
       margin-right: auto;
     }
 
+    /* Agent Skills install block */
+    .install-primary {
+      margin-top: 30px;
+      max-width: 860px;
+    }
+
+    .install-primary .code-block {
+      margin-bottom: 20px;
+    }
+
+    .install-primary .hero-actions {
+      margin-top: 0;
+    }
+
+    /* Paths reference table */
+    .paths-table-container {
+      margin-top: 30px;
+      max-width: 860px;
+      overflow-x: auto;
+    }
+
+    .paths-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    .paths-table th,
+    .paths-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+
+    .paths-table th {
+      background: var(--code-bg);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--secondary);
+    }
+
+    .paths-table td:first-child {
+      font-weight: 500;
+      white-space: nowrap;
+      width: 140px;
+    }
+
+    .paths-table td code {
+      font-size: 0.8rem;
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      html:not([data-theme="light"]) .paths-table th {
+        background: #1a1a1a;
+      }
+    }
+
+    html[data-theme="dark"] .paths-table th {
+      background: #1a1a1a;
+    }
+
+    .install-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-top: 30px;
+    }
+
+    .install-card {
+      text-align: center;
+      padding: 20px 16px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .install-card-icon {
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.65rem;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .install-card-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .install-card-path {
+      font-size: 0.72rem;
+      color: var(--secondary);
+      background: var(--code-bg);
+      padding: 4px 8px;
+      border: 1px solid var(--border-subtle);
+      word-break: break-all;
+    }
+
+    .other-integrations {
+      margin-top: 20px;
+      font-size: 0.875rem;
+      color: var(--secondary);
+    }
+
+    .other-integrations a {
+      color: var(--text);
+    }
+
     .integration-card {
       background: var(--card-bg);
       border: 1px solid var(--border);

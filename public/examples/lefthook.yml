@@ -1,0 +1,57 @@
+# nomoji.dev — Emoji-free git hooks via Lefthook
+# Install: npm install --save-dev lefthook && lefthook install
+# Docs:    https://nomoji.dev/integrations/git-hooks
+
+pre-commit:
+  commands:
+    no-emoji:
+      glob: "*.{js,ts,jsx,tsx,mjs,cjs,py,go,rb,rs,java,kt,swift,cs,cpp,c,h,md,txt,json,yaml,yml,toml,sh,bash}"
+      run: |
+        python3 -c "
+        import sys, re
+        EMOJI = re.compile(
+            '[\U0001F600-\U0001F64F'
+            '\U0001F300-\U0001F5FF'
+            '\U0001F680-\U0001F6FF'
+            '\U0001F1E0-\U0001F1FF'
+            '\U00002600-\U000026FF'
+            '\U00002700-\U000027BF'
+            '\U0001F900-\U0001F9FF'
+            '\U0001FA00-\U0001FA6F'
+            '\U0001FA70-\U0001FAFF]'
+        )
+        files = sys.argv[1:]
+        found = False
+        for f in files:
+            try:
+                for i, line in enumerate(open(f, errors='ignore'), 1):
+                    if EMOJI.search(line):
+                        print(f'{f}:{i}: emoji found: {line.rstrip()}')
+                        found = True
+            except Exception:
+                pass
+        sys.exit(1 if found else 0)
+        " {staged_files}
+
+commit-msg:
+  commands:
+    no-emoji:
+      run: |
+        python3 -c "
+        import sys, re
+        EMOJI = re.compile(
+            '[\U0001F600-\U0001F64F'
+            '\U0001F300-\U0001F5FF'
+            '\U0001F680-\U0001F6FF'
+            '\U0001F1E0-\U0001F1FF'
+            '\U00002600-\U000026FF'
+            '\U00002700-\U000027BF'
+            '\U0001F900-\U0001F9FF'
+            '\U0001FA00-\U0001FA6F'
+            '\U0001FA70-\U0001FAFF]'
+        )
+        msg = open(sys.argv[1], errors='ignore').read()
+        if EMOJI.search(msg):
+            print('Commit message contains emoji. Please use text only.')
+            sys.exit(1)
+        " {1}
