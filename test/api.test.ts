@@ -29,10 +29,12 @@ describe("API Endpoints", () => {
       const response = await SELF.fetch("https://nomoji.dev/api");
       const data = await response.json();
 
+      expect(data.endpoints).toHaveProperty("skill");
+      expect(data.endpoints).toHaveProperty("skillApi");
       expect(data.endpoints).toHaveProperty("config");
       expect(data.endpoints).toHaveProperty("rules");
-      expect(data.endpoints).toHaveProperty("claude");
-      expect(data.endpoints).toHaveProperty("cursorRules");
+      expect(data.endpoints).toHaveProperty("template");
+      expect(data.endpoints).toHaveProperty("json");
       expect(data.endpoints).toHaveProperty("presets");
       expect(data.endpoints).toHaveProperty("analyze");
     });
@@ -256,37 +258,22 @@ describe("API Endpoints", () => {
   });
 
   describe("GET /api/claude/:userId", () => {
-    it("should return Claude subagent file", async () => {
+    it("should return 404 (route removed, use /api/skill/:userId)", async () => {
       const userId = `test-user-${Date.now()}`;
-
       const response = await SELF.fetch(
         `https://nomoji.dev/api/claude/${userId}`,
       );
-
-      expect(response.status).toBe(200);
-      expect(response.headers.get("content-type")).toContain("text/");
-      expect(response.headers.get("content-disposition")).toContain(
-        "nomoji.mdc",
-      );
-
-      const text = await response.text();
-      expect(text).toBeTruthy();
+      expect(response.status).toBe(404);
     });
   });
 
   describe("GET /api/cursor-rules/:userId", () => {
-    it("should return Cursor rules file", async () => {
+    it("should return 404 (route removed, use /api/skill/:userId)", async () => {
       const userId = `test-user-${Date.now()}`;
-
       const response = await SELF.fetch(
         `https://nomoji.dev/api/cursor-rules/${userId}`,
       );
-
-      expect(response.status).toBe(200);
-      expect(response.headers.get("content-type")).toContain("text/");
-      expect(response.headers.get("content-disposition")).toContain(
-        "nomoji.mdc",
-      );
+      expect(response.status).toBe(404);
 
       const text = await response.text();
       expect(text).toBeTruthy();
