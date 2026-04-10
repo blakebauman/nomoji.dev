@@ -141,18 +141,18 @@ export const Layout = (props: {
       background: var(--bg);
       color: var(--text);
       line-height: 1.5;
-      padding: 20px;
+      padding: 0;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       -webkit-tap-highlight-color: transparent;
       position: relative;
       overflow-x: hidden;
       margin: 0;
+      font-size: clamp(14px, 1.1vw, 18px);
     }
 
     .container {
-      max-width: 1200px;
-      margin: 0 auto;
+      width: 100%;
       position: relative;
       z-index: 1;
     }
@@ -1043,56 +1043,65 @@ export const Layout = (props: {
     /* Integration Page Styles */
     /* ── Home page ─────────────────────────────────────────────── */
     .home {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 4rem 1.5rem 6rem;
+      width: 100%;
+      padding: clamp(2rem, 5vw, 6rem);
+      padding-bottom: clamp(4rem, 8vw, 8rem);
     }
 
     .home-header {
-      margin-bottom: 3rem;
+      padding-bottom: clamp(2rem, 4vw, 4rem);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: clamp(2rem, 4vw, 4rem);
+      position: relative;
     }
 
     .home-header h1 {
-      font-size: 2rem;
+      font-size: clamp(4rem, 13vw, 14rem);
       font-weight: 700;
-      letter-spacing: -0.5px;
-      margin-bottom: 0.75rem;
+      letter-spacing: -0.04em;
+      line-height: 0.9;
+      margin-bottom: clamp(1rem, 2vw, 2rem);
     }
 
     .home-tagline {
-      font-size: 1rem;
+      font-size: clamp(0.95rem, 1.8vw, 1.4rem);
       color: var(--secondary);
-      line-height: 1.6;
+      line-height: 1.5;
+      max-width: 60ch;
     }
 
     .home-install {
-      margin-bottom: 3rem;
+      margin-bottom: clamp(2rem, 4vw, 4rem);
     }
 
     .home-install .code-block {
       margin-bottom: 0.75rem;
+      font-size: clamp(0.75rem, 1.2vw, 1rem);
     }
 
     .home-install-note {
-      font-size: 0.8rem;
+      font-size: clamp(0.75rem, 1vw, 0.9rem);
       color: var(--secondary);
     }
 
     .home-nav {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1px;
+      grid-template-columns: repeat(4, 1fr);
       border: 1px solid var(--border);
     }
 
     .home-nav-item {
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
-      padding: 1.25rem;
+      gap: 0.5rem;
+      padding: clamp(1.5rem, 3vw, 3rem);
       text-decoration: none;
-      border: none;
+      border-right: 1px solid var(--border);
       transition: background 0.15s;
+    }
+
+    .home-nav-item:last-child {
+      border-right: none;
     }
 
     .home-nav-item:hover {
@@ -1100,46 +1109,51 @@ export const Layout = (props: {
     }
 
     .home-nav-label {
-      font-size: 0.9rem;
-      font-weight: 600;
+      font-size: clamp(1.1rem, 2.5vw, 2.5rem);
+      font-weight: 700;
       color: var(--text);
+      letter-spacing: -0.02em;
+      line-height: 1;
     }
 
     .home-nav-desc {
-      font-size: 0.78rem;
+      font-size: clamp(0.7rem, 1vw, 0.875rem);
       color: var(--secondary);
       line-height: 1.4;
     }
 
     /* ── Simple pages (/why, /how) ──────────────────────────────── */
     .simple-page {
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem 5rem;
+      width: 100%;
+      padding: clamp(2rem, 5vw, 6rem);
+      padding-bottom: clamp(4rem, 8vw, 8rem);
     }
 
     .simple-header {
-      margin: 2rem 0 2.5rem;
+      padding: clamp(2rem, 4vw, 4rem) 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: clamp(2rem, 4vw, 4rem);
     }
 
     .simple-header h1 {
-      font-size: 1.8rem;
+      font-size: clamp(3rem, 8vw, 8rem);
       font-weight: 700;
-      letter-spacing: -0.5px;
-      margin-bottom: 0.5rem;
+      letter-spacing: -0.04em;
+      line-height: 0.9;
+      margin-bottom: clamp(0.75rem, 1.5vw, 1.25rem);
     }
 
     .simple-header p {
       color: var(--secondary);
-      font-size: 0.95rem;
+      font-size: clamp(0.9rem, 1.5vw, 1.2rem);
     }
 
     .simple-footer-links {
       display: flex;
       gap: 1.5rem;
       align-items: center;
-      margin-top: 3rem;
-      padding-top: 2rem;
+      margin-top: clamp(3rem, 6vw, 6rem);
+      padding-top: clamp(2rem, 3vw, 3rem);
       border-top: 1px solid var(--border);
     }
 
@@ -1147,66 +1161,66 @@ export const Layout = (props: {
     .why-list {
       display: flex;
       flex-direction: column;
-      gap: 0;
     }
 
     .why-item {
       display: grid;
-      grid-template-columns: 100px 1fr;
-      gap: 1.5rem;
-      padding: 1.75rem 0;
+      grid-template-columns: clamp(80px, 14vw, 220px) 1fr;
+      gap: clamp(1rem, 3vw, 4rem);
+      padding: clamp(1.5rem, 3vw, 3rem) 0;
       border-top: 1px solid var(--border);
     }
 
     .why-label {
-      font-size: 0.7rem;
+      font-size: clamp(0.6rem, 0.9vw, 0.75rem);
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
       color: var(--secondary);
-      padding-top: 0.3rem;
+      padding-top: 0.25rem;
     }
 
     .why-body h2 {
-      font-size: 1rem;
+      font-size: clamp(1rem, 2vw, 1.6rem);
       font-weight: 600;
-      margin-bottom: 0.5rem;
-      letter-spacing: -0.2px;
+      margin-bottom: clamp(0.5rem, 1vw, 0.75rem);
+      letter-spacing: -0.02em;
     }
 
     .why-body p {
-      font-size: 0.875rem;
+      font-size: clamp(0.8rem, 1.2vw, 1rem);
       color: var(--secondary);
       line-height: 1.7;
+      max-width: 72ch;
     }
 
     /* ── Tool switcher (/how, /integrations) ────────────────────── */
     .switcher-block {
-      margin: 0 0 2rem;
+      margin: 0 0 clamp(2rem, 4vw, 4rem);
     }
 
     .switcher {
       display: flex;
       flex-wrap: wrap;
-      gap: 0;
-      margin-bottom: 1.5rem;
+      margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
       border: 1px solid var(--border);
-      width: fit-content;
-      max-width: 100%;
+      width: 100%;
     }
 
     .switcher-btn {
-      padding: 0.5rem 1rem;
+      flex: 1;
+      padding: clamp(0.6rem, 1.2vw, 1rem) clamp(0.75rem, 1.5vw, 1.5rem);
       background: none;
       border: none;
       border-right: 1px solid var(--border);
       cursor: pointer;
       font-family: inherit;
-      font-size: 0.8rem;
+      font-size: clamp(0.75rem, 1vw, 0.9rem);
       font-weight: 500;
       color: var(--secondary);
       transition: background 0.1s, color 0.1s;
       white-space: nowrap;
+      text-align: center;
     }
 
     .switcher-btn:last-child {
@@ -1232,27 +1246,27 @@ export const Layout = (props: {
     }
 
     .panel-note {
-      font-size: 0.85rem;
+      font-size: clamp(0.8rem, 1.1vw, 0.95rem);
       color: var(--secondary);
-      margin-bottom: 1rem;
+      margin-bottom: clamp(0.75rem, 1.5vw, 1.5rem);
     }
 
     .panel-option {
       display: flex;
       align-items: flex-start;
-      gap: 0.75rem;
-      margin-bottom: 0.75rem;
+      gap: clamp(0.75rem, 1.5vw, 1.5rem);
+      margin-bottom: clamp(0.75rem, 1.2vw, 1rem);
     }
 
     .option-label {
-      font-size: 0.7rem;
-      font-weight: 600;
+      font-size: clamp(0.6rem, 0.8vw, 0.7rem);
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
       color: var(--secondary);
       white-space: nowrap;
-      padding-top: 0.6rem;
-      min-width: 52px;
+      padding-top: 0.65rem;
+      min-width: clamp(48px, 6vw, 72px);
     }
 
     .panel-option .code-with-copy {
@@ -1260,9 +1274,8 @@ export const Layout = (props: {
     }
 
     .integration-page {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem 1rem;
+      width: 100%;
+      padding: clamp(2rem, 5vw, 6rem);
     }
 
     .breadcrumb-container {
