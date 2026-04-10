@@ -52,11 +52,13 @@ import {
   updateUserConfig,
 } from "./utils/storage";
 import { HomePage } from "./views/home";
+import { HowPage } from "./views/how";
 import { AgentSkillsIntegrationPage } from "./views/integrations/agent-skills";
 import { ClaudeCodeIntegrationPage } from "./views/integrations/claude-code";
 import { CopilotIntegrationPage } from "./views/integrations/copilot";
 import { GitHooksIntegrationPage } from "./views/integrations/git-hooks";
 import { SetupPage } from "./views/setup";
+import { WhyPage } from "./views/why";
 
 const app = new OpenAPIHono<{ Bindings: Env; Variables: Variables }>();
 
@@ -358,6 +360,16 @@ app.get("/skill/:assistant", async (c) => {
 app.get("/", (c) => {
   const theme = getThemeFromRequest(c);
   return c.html(HomePage(theme));
+});
+
+app.get("/why", (c) => {
+  const theme = getThemeFromRequest(c);
+  return c.html(WhyPage(theme));
+});
+
+app.get("/how", (c) => {
+  const theme = getThemeFromRequest(c);
+  return c.html(HowPage(theme));
 });
 
 app.get("/setup", (c) => {

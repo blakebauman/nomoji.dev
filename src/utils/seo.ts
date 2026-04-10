@@ -79,10 +79,22 @@ export function generateSitemap(): string {
       priority: 1.0,
     },
     {
-      loc: `${baseUrl}/setup`,
+      loc: `${baseUrl}/why`,
+      lastmod: now,
+      changefreq: "monthly",
+      priority: 0.9,
+    },
+    {
+      loc: `${baseUrl}/how`,
       lastmod: now,
       changefreq: "weekly",
       priority: 0.9,
+    },
+    {
+      loc: `${baseUrl}/setup`,
+      lastmod: now,
+      changefreq: "weekly",
+      priority: 0.8,
     },
     {
       loc: `${baseUrl}/docs`,

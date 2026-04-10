@@ -1041,6 +1041,224 @@ export const Layout = (props: {
     }
 
     /* Integration Page Styles */
+    /* ── Home page ─────────────────────────────────────────────── */
+    .home {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem 6rem;
+    }
+
+    .home-header {
+      margin-bottom: 3rem;
+    }
+
+    .home-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.75rem;
+    }
+
+    .home-tagline {
+      font-size: 1rem;
+      color: var(--secondary);
+      line-height: 1.6;
+    }
+
+    .home-install {
+      margin-bottom: 3rem;
+    }
+
+    .home-install .code-block {
+      margin-bottom: 0.75rem;
+    }
+
+    .home-install-note {
+      font-size: 0.8rem;
+      color: var(--secondary);
+    }
+
+    .home-nav {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      border: 1px solid var(--border);
+    }
+
+    .home-nav-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      padding: 1.25rem;
+      text-decoration: none;
+      border: none;
+      transition: background 0.15s;
+    }
+
+    .home-nav-item:hover {
+      background: var(--code-bg);
+    }
+
+    .home-nav-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .home-nav-desc {
+      font-size: 0.78rem;
+      color: var(--secondary);
+      line-height: 1.4;
+    }
+
+    /* ── Simple pages (/why, /how) ──────────────────────────────── */
+    .simple-page {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 5rem;
+    }
+
+    .simple-header {
+      margin: 2rem 0 2.5rem;
+    }
+
+    .simple-header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .simple-header p {
+      color: var(--secondary);
+      font-size: 0.95rem;
+    }
+
+    .simple-footer-links {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Why page ───────────────────────────────────────────────── */
+    .why-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .why-item {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 1.5rem;
+      padding: 1.75rem 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .why-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--secondary);
+      padding-top: 0.3rem;
+    }
+
+    .why-body h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.2px;
+    }
+
+    .why-body p {
+      font-size: 0.875rem;
+      color: var(--secondary);
+      line-height: 1.7;
+    }
+
+    /* ── Tool switcher (/how, /integrations) ────────────────────── */
+    .switcher-block {
+      margin: 0 0 2rem;
+    }
+
+    .switcher {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border);
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .switcher-btn {
+      padding: 0.5rem 1rem;
+      background: none;
+      border: none;
+      border-right: 1px solid var(--border);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--secondary);
+      transition: background 0.1s, color 0.1s;
+      white-space: nowrap;
+    }
+
+    .switcher-btn:last-child {
+      border-right: none;
+    }
+
+    .switcher-btn:hover {
+      background: var(--code-bg);
+      color: var(--text);
+    }
+
+    .switcher-btn.active {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    .tool-panel {
+      display: none;
+    }
+
+    .tool-panel.active {
+      display: block;
+    }
+
+    .panel-note {
+      font-size: 0.85rem;
+      color: var(--secondary);
+      margin-bottom: 1rem;
+    }
+
+    .panel-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .option-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--secondary);
+      white-space: nowrap;
+      padding-top: 0.6rem;
+      min-width: 52px;
+    }
+
+    .panel-option .code-with-copy {
+      flex: 1;
+    }
+
     .integration-page {
       max-width: 1200px;
       margin: 0 auto;
