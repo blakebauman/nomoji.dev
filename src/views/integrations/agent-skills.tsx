@@ -234,7 +234,7 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
 
       <div class="content-section">
         <h2>Skill Directory Paths Reference</h2>
-        <div class="comparison-table">
+        <div class="paths-table-container">
           <table class="paths-table">
             <thead>
               <tr>

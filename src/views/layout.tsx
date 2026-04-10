@@ -1127,6 +1127,63 @@ export const Layout = (props: {
       margin-bottom: 1.5rem;
     }
 
+    .tool-section {
+      padding: 1.5rem 0;
+    }
+
+    .tool-section > p {
+      margin-bottom: 0.75rem;
+      color: var(--secondary);
+      font-size: 0.9rem;
+    }
+
+    .tool-section > .btn-link {
+      display: inline-block;
+      margin-top: 0.5rem;
+    }
+
+    .tool-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .tool-header h3 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .install-tabs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin: 0.75rem 0;
+    }
+
+    .install-option h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--secondary);
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .install-option > p {
+      font-size: 0.85rem;
+      color: var(--secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .note {
+      font-size: 0.8rem;
+      color: var(--secondary);
+      margin-top: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      border-left: 2px solid var(--border);
+    }
+
     .setup-box {
       display: flex;
       flex-direction: column;
