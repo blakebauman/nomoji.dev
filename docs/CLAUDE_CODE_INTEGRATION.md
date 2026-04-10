@@ -1,289 +1,126 @@
 # Claude Code Integration Guide
 
-Learn how to integrate nomoji.dev with Claude Code using specialized subagents to enforce emoji-free code standards.
+Learn how to install the nomoji Agent Skill in Claude Code to enforce emoji-free code standards.
 
-Based on the [official Claude Code subagents documentation](https://docs.claude.com/en/docs/claude-code/sub-agents).
-
-## What is Claude Code?
-
-Claude Code is Anthropic's AI coding assistant that uses specialized **subagents** to handle specific types of tasks. Subagents operate in their own context window and can be configured with custom system prompts and tools.
+See also: [Agent Skills standard](https://agentskills.io) | [Anthropic Skills Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview)
 
 ## Quick Setup
 
-### Method 1: Download Pre-configured Subagent (Recommended)
+### Project-level (shared with team)
 
-1. Download the nomoji subagent:
 ```bash
-curl https://nomoji.dev/api/claude/default -o nomoji.mdc
+mkdir -p .claude/skills/nomoji
+curl https://nomoji.dev/api/skill/default -o .claude/skills/nomoji/SKILL.md
 ```
 
-2. Place it in your project:
+### User-level (all projects)
+
 ```bash
-mkdir -p .claude/agents
-mv nomoji.mdc .claude/agents/
+mkdir -p ~/.claude/skills/nomoji
+curl https://nomoji.dev/api/skill/default -o ~/.claude/skills/nomoji/SKILL.md
 ```
 
-3. That's it! Claude Code will automatically detect and use the subagent.
-
-### Method 2: Use the /agents Command
-
-1. In Claude Code, run:
-```
-/agents
-```
-
-2. Select "Create New Agent"
-3. Choose "Project-level agent"
-4. Describe the agent:
-```
-Create a nomoji subagent that checks code for emoji usage.
-Visit https://nomoji.dev for the configuration.
-```
-
-5. Let Claude generate it, then customize as needed
+Claude Code auto-discovers skills in `.claude/skills/` — no additional configuration needed.
 
 ## How It Works
 
-The nomoji subagent is **proactive** and will be automatically invoked after:
+The nomoji skill uses the [Agent Skills](https://agentskills.io) open standard. Claude loads skill metadata at startup and applies instructions on demand:
+
+- **Level 1 (always active):** Skill name and description loaded at startup — Claude knows nomoji exists and when to apply it
+- **Level 2 (on demand):** Full instructions loaded when relevant — after generating code, docs, or commits
+
+The skill is automatically applied after:
 - Generating or modifying code files
 - Creating or updating documentation
 - Writing console output or logging statements
 - Composing commit messages
 
-You can also explicitly invoke it:
-```
-> Use the nomoji subagent to audit my recent changes
-> Have nomoji check this file for emojis
-> Ask nomoji to review the console output
-```
+Invoke manually with `/nomoji` in Claude Code.
 
-## Subagent Configuration
+## Skill Frontmatter
 
-The nomoji subagent is configured with:
+The generated SKILL.md includes Claude Code-specific frontmatter:
 
-**Tools:**
-- `Read` - Examine file contents
-- `Grep` - Search for emoji patterns
-- `Glob` - Find relevant files
-- `Bash` - Run git diff, detection scripts
-
-**Model:** `inherit` - Uses the same model as your main conversation
-
-**Priority:** HIGH - Will be invoked proactively when appropriate
-
-## What It Does
-
-When invoked, the nomoji subagent:
-
-1. **Scans Recent Changes**: Runs `git diff` to see what was modified
-2. **Analyzes All Contexts**: Documentation, console output, CLI, logging, comments, commits
-3. **Provides Detailed Report** with specific line numbers and recommendations
-4. **Offers Automatic Fixes**: Creates diffs showing proposed changes
-
-Example report:
-```
-NOMOJI AUDIT REPORT
-
-Files Checked: 12
-Emojis Found: 3
-
-CRITICAL ISSUES (Console/Logging):
-  - src/server.ts:42 | console.log('🚀 Starting...')
-  - src/logger.ts:15 | logger.error('❌ Failed')
-
-HIGH PRIORITY (Documentation):
-  - README.md:5 | # 📚 Documentation
-
-RECOMMENDATIONS:
-1. Remove all emojis from console output immediately
-2. Update README headers to plain text
-
-Would you like me to fix these automatically?
-```
-
-## Project-Level vs User-Level
-
-### Project-Level (Recommended)
-
-```bash
-# Available only in current project
-mkdir -p .claude/agents
-curl https://nomoji.dev/api/claude/default -o .claude/agents/nomoji.mdc
-git add .claude/agents/nomoji.mdc
-```
-
-**Benefits:**
-- Team-wide consistency
-- Version controlled
-- Project-specific configuration
-
-### User-Level
-
-```bash
-# Available across all your projects
-mkdir -p ~/.claude/agents
-curl https://nomoji.dev/api/claude/default -o ~/.claude/agents/nomoji.mdc
-```
-
-**Benefits:**
-- Use across all projects
-- Personal preference enforcement
-- No need to configure per-project
-
-**Note:** Project-level subagents override user-level ones.
-
-## Customization
-
-### Apply Different Presets
-
-Download different configurations:
-
-```bash
-# Strict mode (no emojis anywhere)
-curl https://nomoji.dev/api/claude/strict-user -o .claude/agents/nomoji.mdc
-
-# Moderate mode (limited emojis)
-curl https://nomoji.dev/api/claude/moderate-user -o .claude/agents/nomoji.mdc
-
-# Relaxed mode (emojis in UI only)
-curl https://nomoji.dev/api/claude/relaxed-user -o .claude/agents/nomoji.mdc
-```
-
-### Edit the Subagent
-
-The nomoji.mdc file has two parts:
-
-**Frontmatter** (YAML):
 ```yaml
 ---
 name: nomoji
-description: When to invoke this subagent
-tools: Read, Grep, Glob, Bash
-model: inherit
+description: Enforce no-emoji standards. Use after generating code, docs, comments, logs, CLI output, or commit messages to remove emojis and keep output professional and accessible.
+allowed-tools: Read Grep Glob Bash
 ---
 ```
 
-**System Prompt** (Markdown):
-```markdown
-You are an emoji control specialist...
+Key fields:
+- **`description`** — front-loaded with key terms so Claude auto-invokes at the right time; kept under 250 characters
+- **`allowed-tools`** — pre-approves Read, Grep, Glob, Bash so nomoji runs without per-use permission prompts
 
-## Detection Process
-1. Scan recent changes
-2. Analyze contexts
-3. Report findings
+## Presets
+
+```bash
+# Strict mode (no emojis anywhere — recommended for enterprise)
+curl https://nomoji.dev/api/skill/strict-user -o .claude/skills/nomoji/SKILL.md
+
+# Moderate mode (balanced)
+curl https://nomoji.dev/api/skill/moderate-user -o .claude/skills/nomoji/SKILL.md
+
+# Relaxed mode (emojis in UI only)
+curl https://nomoji.dev/api/skill/relaxed-user -o .claude/skills/nomoji/SKILL.md
 ```
 
-Edit either section to customize behavior:
+Or configure your own at [nomoji.dev/setup](https://nomoji.dev/setup) and download with your user ID:
+
 ```bash
-code .claude/agents/nomoji.mdc
-# or
-vim .claude/agents/nomoji.mdc
+curl https://nomoji.dev/api/skill/YOUR-USER-ID -o .claude/skills/nomoji/SKILL.md
+```
+
+## Team Setup
+
+Commit the skill to version control so all team members get it automatically:
+
+```bash
+git add .claude/skills/nomoji/SKILL.md
+git commit -m "Add nomoji Agent Skill"
 ```
 
 ## Usage Examples
 
-### Automatic Invocation
-
-Claude Code will automatically use nomoji when appropriate:
+### Automatic invocation
 
 ```
 You: Update the README with installation instructions
 
-Claude: [Generates README]
-
-[nomoji subagent automatically runs]
-
-nomoji: I found emojis in the generated README. Would you like me to fix them?
+Claude: [Generates README — nomoji skill active, no emojis added]
 ```
 
-### Explicit Invocation
-
-Request nomoji specifically:
+### Manual invocation
 
 ```
-You: Use nomoji to check my recent commits
+You: /nomoji check my recent commits
 
 nomoji: Scanning commit history...
 Found 2 commits with emojis in messages:
-- abc1234: "feat: ✨ add feature"
-- def5678: "fix: 🐛 resolve bug"
-
-Would you like me to help rewrite these?
+- abc1234: "feat: add feature" — OK
+- def5678: "fix: resolve bug"  — OK
+No issues found.
 ```
-
-## Verification
-
-Test that nomoji is working:
-
-1. Create a test file with emojis:
-```bash
-echo "console.log('🚀 Test');" > test.js
-```
-
-2. Ask Claude to review it:
-```
-> Review test.js for code quality
-```
-
-3. Nomoji should be automatically invoked and flag the emoji
-
-## Managing Subagents
-
-### List Available Subagents
-```
-/agents
-```
-
-### View Subagent Details
-```
-/agents show nomoji
-```
-
-### Remove Subagent
-```bash
-rm .claude/agents/nomoji.mdc
-# or
-rm ~/.claude/agents/nomoji.mdc
-```
-
-## Best Practices
-
-1. **Start with Claude-generated agent**: Use `/agents` to generate, then customize
-2. **Commit to version control**: Share with your team
-3. **Use explicit invocation for audits**: Manually call nomoji for existing code
-4. **Let automatic invocation handle new code**: Trust nomoji to catch issues in new content
-5. **Customize for your needs**: Edit the subagent to match your project's requirements
 
 ## Troubleshooting
 
-### Subagent Not Being Invoked
+**Skill not being applied?**
+1. Check file location: `.claude/skills/nomoji/SKILL.md`
+2. Verify YAML frontmatter is present (name and description fields)
+3. Try explicit invocation: `/nomoji`
 
-1. Check file location: `.claude/agents/nomoji.mdc`
-2. Verify file format (YAML frontmatter + markdown body)
-3. Make sure description is clear about when to invoke
-4. Try explicit invocation first: `Use nomoji subagent`
-
-### Wrong Behavior
-
-1. Check the system prompt in nomoji.mdc
-2. Verify tools list includes Read, Grep, Glob, Bash
-3. Update the configuration at https://nomoji.dev
-4. Download fresh version
+**Wrong behavior?**
+1. Re-download a fresh SKILL.md: `curl https://nomoji.dev/api/skill/default -o .claude/skills/nomoji/SKILL.md`
+2. Update your configuration at [nomoji.dev/setup](https://nomoji.dev/setup)
 
 ## Resources
 
-- [Claude Code Subagents Docs](https://docs.claude.com/en/docs/claude-code/sub-agents)
-- [nomoji.dev Configuration](https://nomoji.dev)
-- [API Reference](API.md)
-
-## Support
-
-Issues with integration?
-- Check Claude Code documentation
-- Verify subagent file format
-- Test with explicit invocation first
-- Report persistent issues on GitHub
+- [Agent Skills Integration page](https://nomoji.dev/integrations/agent-skills) — install guides for all tools
+- [nomoji.dev API](https://nomoji.dev/docs) — personalized skill generation
+- [agentskills.io](https://agentskills.io) — open standard spec
+- [Anthropic Skills Docs](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview)
 
 ---
 
-**Professional code deserves professional standards** - powered by Claude Code and nomoji.dev.
+Professional code deserves professional standards — powered by [nomoji.dev](https://nomoji.dev).

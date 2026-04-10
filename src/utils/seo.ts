@@ -289,18 +289,30 @@ export function generateAIFriendlyData(): string {
         ],
         integrations: [
           {
-            name: "Cursor",
-            type: "AI coding assistant",
+            name: "Claude Code",
+            type: "Agent Skills-compatible AI coding assistant",
             setup:
-              "mkdir -p .cursor/rules && curl https://nomoji.dev/api/cursor-rules/default -o .cursor/rules/nomoji.mdc",
+              "mkdir -p .claude/skills/nomoji && curl https://nomoji.dev/api/skill/default -o .claude/skills/nomoji/SKILL.md",
             recommended: true,
           },
           {
-            name: "Claude Code",
-            type: "AI coding assistant with subagents",
+            name: "Cursor",
+            type: "Agent Skills-compatible AI coding assistant",
             setup:
-              "mkdir -p .claude/agents && curl https://nomoji.dev/api/claude/default -o .claude/agents/nomoji.mdc",
+              "mkdir -p .cursor/skills/nomoji && curl https://nomoji.dev/api/skill/default -o .cursor/skills/nomoji/SKILL.md",
             recommended: true,
+          },
+          {
+            name: "OpenAI Codex",
+            type: "Agent Skills-compatible AI coding agent",
+            setup:
+              "mkdir -p .agents/skills/nomoji && curl https://nomoji.dev/api/skill/default -o .agents/skills/nomoji/SKILL.md",
+          },
+          {
+            name: "Gemini CLI",
+            type: "Agent Skills-compatible command-line AI assistant",
+            setup:
+              "mkdir -p .gemini/skills/nomoji && curl https://nomoji.dev/api/skill/default -o .gemini/skills/nomoji/SKILL.md",
           },
           {
             name: "GitHub Copilot",

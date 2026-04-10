@@ -19,9 +19,9 @@ export const HomePage = (theme?: string) => {
 
   return (
     <Layout
-      title="nomoji.dev - Stop AI from Adding Emojis to Your Code"
-      description="Control emoji usage in AI-generated code, documentation, and logs. Free rules for Cursor, Claude Code, GitHub Copilot, and more. Keep your code professional and accessible."
-      keywords="AI code generation, emoji control, Cursor rules, Claude Code, GitHub Copilot, code quality, accessibility, professional code, developer tools"
+      title="nomoji.dev - The no-emoji Agent Skill for AI coding tools"
+      description="Install the nomoji Agent Skill to keep AI-generated code, docs, and commits emoji-free. Works with Claude Code, Cursor, OpenAI Codex, Gemini CLI, and 35+ tools via the open Agent Skills standard."
+      keywords="agent skill, nomoji, AI code generation, emoji control, Claude Code skills, Cursor skills, OpenAI Codex skills, Gemini CLI skills, code quality, accessibility, professional code, agentskills.io"
       canonical="https://nomoji.dev"
       structuredData={structuredData}
       theme={theme}
@@ -39,16 +39,17 @@ export const HomePage = (theme?: string) => {
           </button>
           <h1>nomoji.dev</h1>
           <p class="tagline">
-            Stop AI coding assistants from adding emojis to your code, docs, and
-            logs
+            The open Agent Skill that keeps AI-generated code, docs, and commits
+            emoji-free
           </p>
         </header>
 
         <section class="hero">
           <p class="hero-text">
-            AI assistants love adding emojis everywhere.{" "}
-            <strong>nomoji.dev</strong> makes them stop. Simple rules you can
-            apply in seconds to keep your code professional.
+            AI tools love adding emojis everywhere.{" "}
+            <strong>nomoji.dev</strong> publishes the official nomoji{" "}
+            <a href="https://agentskills.io">Agent Skill</a> — one install, works
+            across Claude Code, Cursor, OpenAI Codex, Gemini CLI, and 35+ tools.
           </p>
           <div class="hero-actions">
             <a href="/setup" class="btn btn-primary">
@@ -61,145 +62,76 @@ export const HomePage = (theme?: string) => {
         </section>
 
         <section class="integrations">
-          <h2>Choose Your AI Assistant</h2>
+          <h2>Install</h2>
           <p class="subtitle">
-            Select your tool and follow the quick setup instructions
+            One <a href="https://agentskills.io">Agent Skill</a> — works across
+            Claude Code, Cursor, OpenAI Codex, Gemini CLI, and 35+ tools
           </p>
 
-          <div class="integration-grid">
-            <article class="integration-card">
-              <div class="integration-header">
-                <h3>Cursor</h3>
-                <span class="badge badge-recommended">Recommended</span>
-              </div>
-              <p>Add a single rules file to your project</p>
-              <div class="code-block">
-                <code>mkdir -p .cursor/rules</code>
-                <code>
-                  curl https://nomoji.dev/api/cursor-rules/default -o
-                  .cursor/rules/nomoji.mdc
-                </code>
-              </div>
-              <div class="card-actions">
-                <a href="/integrations/cursor" class="btn btn-link">
-                  View Guide →
-                </a>
-                <a
-                  href="/api/cursor-rules/default"
-                  class="btn btn-secondary-sm"
-                  download
-                >
-                  Download
-                </a>
-              </div>
-            </article>
-
-            <article class="integration-card">
-              <div class="integration-header">
-                <h3>Claude Code</h3>
-                <span class="badge badge-new">New</span>
-              </div>
-              <p>Proactive emoji detection with AI subagents</p>
-              <div class="code-block">
-                <code>mkdir -p .claude/agents</code>
-                <code>
-                  curl https://nomoji.dev/api/claude/default -o
-                  .claude/agents/nomoji.mdc
-                </code>
-              </div>
-              <div class="card-actions">
-                <a href="/integrations/claude-code" class="btn btn-link">
-                  View Guide →
-                </a>
-                <a
-                  href="/api/claude/default"
-                  class="btn btn-secondary-sm"
-                  download
-                >
-                  Download
-                </a>
-              </div>
-            </article>
-
-            <article class="integration-card">
-              <div class="integration-header">
-                <h3>GitHub Copilot</h3>
-                <span class="badge badge-secondary">VS Code</span>
-              </div>
-              <p>Add custom instructions to VS Code settings</p>
-              <div class="code-block">
-                <code>
-                  curl https://nomoji.dev/api/template/default/copilot
-                </code>
-              </div>
-              <div class="card-actions">
-                <a href="/integrations/copilot" class="btn btn-link">
-                  View Guide →
-                </a>
-                <a
-                  href="/api/template/default/copilot"
-                  class="btn btn-secondary-sm"
-                  download
-                >
-                  Download
-                </a>
-              </div>
-            </article>
-
-            <article class="integration-card">
-              <div class="integration-header">
-                <h3>Google Gemini CLI</h3>
-                <span class="badge badge-secondary">CLI</span>
-              </div>
-              <p>Configure system instructions for Gemini</p>
-              <div class="code-block">
-                <code>mkdir -p ~/.gemini</code>
-                <code>
-                  curl https://nomoji.dev/api/template/default/generic -o
-                  ~/.gemini/nomoji-rules.md
-                </code>
-              </div>
-              <div class="card-actions">
-                <a href="/integrations/gemini" class="btn btn-link">
-                  View Guide →
-                </a>
-                <a
-                  href="/api/template/default/generic"
-                  class="btn btn-secondary-sm"
-                  download
-                >
-                  Download
-                </a>
-              </div>
-            </article>
-
-            <article class="integration-card">
-              <div class="integration-header">
-                <h3>OpenAI Codex</h3>
-                <span class="badge badge-new">New</span>
-              </div>
-              <p>AI coding agent with system instruction support</p>
-              <div class="code-block">
-                <code>npm i -g @openai/codex</code>
-                <code>
-                  curl https://nomoji.dev/api/template/default/openai-codex -o
-                  ~/nomoji-codex.md
-                </code>
-              </div>
-              <div class="card-actions">
-                <a href="/integrations/openai" class="btn btn-link">
-                  View Guide →
-                </a>
-                <a
-                  href="/api/template/default/openai-codex"
-                  class="btn btn-secondary-sm"
-                  download
-                >
-                  Download
-                </a>
-              </div>
-            </article>
+          <div class="install-primary">
+            <div class="code-block">
+              <code id="install-cmd">
+                mkdir -p .claude/skills/nomoji && curl
+                https://nomoji.dev/api/skill/default -o
+                .claude/skills/nomoji/SKILL.md
+              </code>
+            </div>
+            <div class="hero-actions">
+              <a href="/integrations/agent-skills" class="btn btn-primary">
+                All install guides →
+              </a>
+              <a
+                href="/api/skill/default"
+                class="btn btn-secondary"
+                download
+              >
+                Download SKILL.md
+              </a>
+            </div>
           </div>
+
+          <div class="paths-table-container">
+            <table class="paths-table">
+              <thead>
+                <tr>
+                  <th>Tool</th>
+                  <th>Install path</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Claude Code</td>
+                  <td>
+                    <code>.claude/skills/nomoji/SKILL.md</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Cursor</td>
+                  <td>
+                    <code>.cursor/skills/nomoji/SKILL.md</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>OpenAI Codex</td>
+                  <td>
+                    <code>.agents/skills/nomoji/SKILL.md</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Gemini CLI</td>
+                  <td>
+                    <code>.gemini/skills/nomoji/SKILL.md</code>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="other-integrations">
+            Not using a Skills-compatible tool?{" "}
+            <a href="/integrations/copilot">GitHub Copilot</a> and{" "}
+            <a href="/integrations/git-hooks">Git Hooks</a> are also supported.
+          </p>
         </section>
 
         <div class="section-divider"></div>

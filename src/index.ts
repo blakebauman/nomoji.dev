@@ -24,14 +24,15 @@ import {
   getPresetsRoute,
   getRulesRoute,
   getSharedConfigRoute,
+  getSkillRoute,
   getTemplateRoute,
   getUserConfigRoute,
   healthRoute,
   shareConfigRoute,
   updateUserConfigRoute,
 } from "./routes/openapi";
-import { generateClaudeSubagent } from "./rules/claude";
-import { generateCursorRules } from "./rules/cursor";
+import { generateSkill } from "./rules/skill";
+
 import {
   generateJSON,
   generateLegacyCursorRules,
@@ -55,12 +56,10 @@ import {
   updateUserConfig,
 } from "./utils/storage";
 import { HomePage } from "./views/home";
+import { AgentSkillsIntegrationPage } from "./views/integrations/agent-skills";
 import { ClaudeCodeIntegrationPage } from "./views/integrations/claude-code";
 import { CopilotIntegrationPage } from "./views/integrations/copilot";
-import { CursorIntegrationPage } from "./views/integrations/cursor";
-import { GeminiIntegrationPage } from "./views/integrations/gemini";
 import { GitHooksIntegrationPage } from "./views/integrations/git-hooks";
-import { OpenAIIntegrationPage } from "./views/integrations/openai";
 import { SetupPage } from "./views/setup";
 
 const app = new OpenAPIHono<{ Bindings: Env; Variables: Variables }>();
@@ -344,29 +343,27 @@ app.get("/setup", (c) => {
   return c.html(SetupPage(theme));
 });
 
-app.get("/integrations/cursor", (c) => {
+// Agent Skills-compatible tools — consolidated into one page
+app.get("/integrations/agent-skills", (c) => {
   const theme = getThemeFromRequest(c);
-  return c.html(CursorIntegrationPage(theme));
+  return c.html(AgentSkillsIntegrationPage(theme));
 });
 
+// Per-tool redirects for old URLs
+app.get("/integrations/cursor", (c) => c.redirect("/integrations/agent-skills", 301));
+app.get("/integrations/gemini", (c) => c.redirect("/integrations/agent-skills", 301));
+app.get("/integrations/openai", (c) => c.redirect("/integrations/agent-skills", 301));
+
+// Claude Code has its own focused install guide
 app.get("/integrations/claude-code", (c) => {
   const theme = getThemeFromRequest(c);
   return c.html(ClaudeCodeIntegrationPage(theme));
 });
 
+// Non-Skills integrations stay separate
 app.get("/integrations/copilot", (c) => {
   const theme = getThemeFromRequest(c);
   return c.html(CopilotIntegrationPage(theme));
-});
-
-app.get("/integrations/gemini", (c) => {
-  const theme = getThemeFromRequest(c);
-  return c.html(GeminiIntegrationPage(theme));
-});
-
-app.get("/integrations/openai", (c) => {
-  const theme = getThemeFromRequest(c);
-  return c.html(OpenAIIntegrationPage(theme));
 });
 
 app.get("/integrations/git-hooks", (c) => {
@@ -434,9 +431,10 @@ app.openapi(apiInfoRoute, (c) => {
     version: "1.0.0",
     description: "Control emoji usage in AI-generated code and documentation",
     endpoints: {
+      skill: "/api/skill/:userId",
       config: "/api/config/:userId",
       rules: "/api/rules/:userId",
-      claude: "/api/claude/:userId",
+      claude: "/api/claude/:userId (alias for /api/skill/:userId)",
       cursorRules: "/api/cursor-rules/:userId",
       cursorrules: "/api/cursorrules/:userId (deprecated)",
       template: "/api/template/:userId/:assistant",
@@ -445,11 +443,11 @@ app.openapi(apiInfoRoute, (c) => {
       shared: "/api/shared/:configId",
     },
     assistants: {
-      claude: "Claude Code - Download .claude/agents/nomoji.mdc subagent",
-      cursor: "Cursor - Download .cursor/rules/nomoji.mdc rules",
+      skill: "Agent Skills (35+ tools) - Download SKILL.md to .claude/skills/nomoji/",
+      claude: "Claude Code - alias for /api/skill/:userId",
+      cursor: "Cursor - alias for /api/skill/:userId",
       copilot: "GitHub Copilot - Get instructions format",
       gemini: "Google Gemini CLI - Get configuration instructions",
-      codeium: "Codeium - Generic template",
     },
   });
 });
@@ -592,19 +590,35 @@ app.openapi(getRulesRoute, async (c) => {
   }
 });
 
+app.openapi(getSkillRoute, async (c) => {
+  const { userId } = c.req.valid("param");
+
+  try {
+    const config = await getOrCreateUserConfig(c.env, userId);
+    const skill = generateSkill(config, userId);
+
+    c.header("Content-Disposition", 'attachment; filename="SKILL.md"');
+    c.header("Content-Type", "text/markdown");
+
+    return c.text(skill);
+  } catch (_error) {
+    return c.text("Error generating Agent Skill file", 500);
+  }
+});
+
 app.openapi(getClaudeSubagentRoute, async (c) => {
   const { userId } = c.req.valid("param");
 
   try {
     const config = await getOrCreateUserConfig(c.env, userId);
-    const subagent = generateClaudeSubagent(config);
+    const skill = generateSkill(config, userId);
 
-    c.header("Content-Disposition", 'attachment; filename="nomoji.mdc"');
+    c.header("Content-Disposition", 'attachment; filename="SKILL.md"');
     c.header("Content-Type", "text/markdown");
 
-    return c.text(subagent);
+    return c.text(skill);
   } catch (_error) {
-    return c.text("Error generating Claude subagent file", 500);
+    return c.text("Error generating Agent Skill file", 500);
   }
 });
 
@@ -613,14 +627,14 @@ app.openapi(getCursorRulesRoute, async (c) => {
 
   try {
     const config = await getOrCreateUserConfig(c.env, userId);
-    const rules = generateCursorRules(config);
+    const skill = generateSkill(config, userId);
 
-    c.header("Content-Disposition", 'attachment; filename="nomoji.mdc"');
+    c.header("Content-Disposition", 'attachment; filename="SKILL.md"');
     c.header("Content-Type", "text/markdown");
 
-    return c.text(rules);
+    return c.text(skill);
   } catch (_error) {
-    return c.text("Error generating Cursor rules file", 500);
+    return c.text("Error generating skill file", 500);
   }
 });
 

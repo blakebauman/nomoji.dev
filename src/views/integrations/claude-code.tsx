@@ -27,27 +27,27 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
 
       <PageHeader
         title="Claude Code Integration Guide"
-        subtitle="Proactive emoji detection with AI subagents"
+        subtitle="Install the nomoji Agent Skill for automatic emoji-free output"
       />
 
       <div class="quick-setup">
         <h2>Quick Setup</h2>
         <div class="setup-box">
           <div class="command-step">
-            <span class="step-label">1. Create agents directory</span>
+            <span class="step-label">1. Create skills directory</span>
             <div class="code-with-copy">
-              <code id="cmd1">mkdir -p .claude/agents</code>
+              <code id="cmd1">mkdir -p .claude/skills/nomoji</code>
               <button type="button" onclick="copy('cmd1')">
                 Copy
               </button>
             </div>
           </div>
           <div class="command-step">
-            <span class="step-label">2. Download subagent</span>
+            <span class="step-label">2. Download skill</span>
             <div class="code-with-copy">
               <code id="cmd2">
-                curl https://nomoji.dev/api/claude/default -o
-                .claude/agents/nomoji.mdc
+                curl https://nomoji.dev/api/skill/default -o
+                .claude/skills/nomoji/SKILL.md
               </code>
               <button type="button" onclick="copy('cmd2')">
                 Copy
@@ -56,7 +56,7 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
           </div>
           <div class="command-step">
             <span class="step-label">3. Done!</span>
-            <p>Claude Code will automatically detect and use the subagent</p>
+            <p>Claude Code discovers and loads the skill automatically</p>
           </div>
         </div>
       </div>
@@ -64,9 +64,22 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
       <div class="content-section">
         <h2>How It Works</h2>
         <p>
-          The nomoji subagent is proactive and will be automatically invoked
-          after:
+          The nomoji skill uses the{" "}
+          <a href="https://agentskills.io">Agent Skills</a> open standard.
+          Claude Code discovers skills in <code>.claude/skills/</code>{" "}
+          automatically and loads them with progressive efficiency:
         </p>
+        <ul class="feature-list">
+          <li>
+            <strong>Level 1 (always active):</strong> Skill metadata loaded at
+            startup — Claude knows nomoji exists and when to apply it
+          </li>
+          <li>
+            <strong>Level 2 (on demand):</strong> Full instructions loaded when
+            relevant — after generating code, docs, or commits
+          </li>
+        </ul>
+        <p>The skill is automatically applied after:</p>
         <ul class="feature-list">
           <li>Generating or modifying code files</li>
           <li>Creating or updating documentation</li>
@@ -83,8 +96,8 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
             <p>No emojis anywhere (recommended for enterprise)</p>
             <div class="code-with-copy">
               <code id="strict">
-                curl https://nomoji.dev/api/claude/strict-user -o
-                .claude/agents/nomoji.mdc
+                curl https://nomoji.dev/api/skill/strict-user -o
+                .claude/skills/nomoji/SKILL.md
               </code>
               <button type="button" onclick="copy('strict')">
                 Copy
@@ -96,8 +109,8 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
             <p>Limited emojis, balanced approach</p>
             <div class="code-with-copy">
               <code id="moderate">
-                curl https://nomoji.dev/api/claude/moderate-user -o
-                .claude/agents/nomoji.mdc
+                curl https://nomoji.dev/api/skill/moderate-user -o
+                .claude/skills/nomoji/SKILL.md
               </code>
               <button type="button" onclick="copy('moderate')">
                 Copy
@@ -109,8 +122,8 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
             <p>Emojis in UI only</p>
             <div class="code-with-copy">
               <code id="relaxed">
-                curl https://nomoji.dev/api/claude/relaxed-user -o
-                .claude/agents/nomoji.mdc
+                curl https://nomoji.dev/api/skill/relaxed-user -o
+                .claude/skills/nomoji/SKILL.md
               </code>
               <button type="button" onclick="copy('relaxed')">
                 Copy
@@ -125,8 +138,8 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
         <div class="comparison-table">
           <div class="comparison-item">
             <h3>Project-Level (Recommended)</h3>
-            <p>Place subagent in your project directory:</p>
-            <code class="inline-code">.claude/agents/nomoji.mdc</code>
+            <p>Place skill in your project directory:</p>
+            <code class="inline-code">.claude/skills/nomoji/SKILL.md</code>
             <p>
               <strong>Benefits:</strong>
             </p>
@@ -138,8 +151,8 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
           </div>
           <div class="comparison-item">
             <h3>User-Level</h3>
-            <p>Place subagent in your home directory:</p>
-            <code class="inline-code">~/.claude/agents/nomoji.mdc</code>
+            <p>Place skill in your home directory:</p>
+            <code class="inline-code">~/.claude/skills/nomoji/SKILL.md</code>
             <p>
               <strong>Benefits:</strong>
             </p>
@@ -155,20 +168,13 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
       <div class="content-section">
         <h2>Usage Examples</h2>
         <div class="usage-examples">
-          <h3>Automatic Invocation</h3>
-          <p>Claude Code will automatically use nomoji when appropriate:</p>
+          <h3>Automatic Application</h3>
+          <p>Claude Code applies nomoji automatically when relevant:</p>
           <code class="code-example">
             You: Update the README with installation instructions
             <br />
             <br />
-            Claude: [Generates README]
-            <br />
-            <br />
-            [nomoji subagent automatically runs]
-            <br />
-            <br />
-            nomoji: I found emojis in the generated README. Would you like me to
-            fix them?
+            Claude: [Generates README — nomoji skill active, no emojis added]
           </code>
         </div>
         <div class="usage-examples">
@@ -190,22 +196,29 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
           <h2>Troubleshooting</h2>
         </summary>
         <div class="accordion-content">
-          <h3>Subagent Not Being Invoked?</h3>
+          <h3>Skill Not Being Applied?</h3>
           <ol>
             <li>
-              Check file location: <code>.claude/agents/nomoji.mdc</code>
+              Check file location:{" "}
+              <code>.claude/skills/nomoji/SKILL.md</code>
             </li>
-            <li>Verify file format (YAML frontmatter + markdown body)</li>
-            <li>Make sure description is clear about when to invoke</li>
-            <li>Try explicit invocation first: "Use nomoji subagent"</li>
+            <li>
+              Verify YAML frontmatter is present (name and description fields)
+            </li>
+            <li>
+              Make sure description explains when to use the skill
+            </li>
+            <li>Try explicit invocation: "Use nomoji to check this"</li>
           </ol>
 
           <h3>Wrong Behavior?</h3>
           <ol>
-            <li>Check the system prompt in nomoji.mdc</li>
-            <li>Verify tools list includes Read, Grep, Glob, Bash</li>
-            <li>Update the configuration at nomoji.dev</li>
-            <li>Download fresh version</li>
+            <li>Check the rules in SKILL.md match your expectations</li>
+            <li>
+              Update your configuration at{" "}
+              <a href="/setup">nomoji.dev/setup</a>
+            </li>
+            <li>Re-download a fresh SKILL.md</li>
           </ol>
         </div>
       </details>
@@ -217,20 +230,20 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
         <div class="accordion-content">
           <p>Share configuration with your team:</p>
           <ol>
-            <li>Download subagent to your project</li>
+            <li>Download skill to your project</li>
             <li>
               Commit to version control:
               <div class="code-with-copy">
                 <code id="git">
-                  git add .claude/agents/nomoji.mdc && git commit -m "Add Claude
-                  Code nomoji subagent"
+                  git add .claude/skills/nomoji/SKILL.md && git commit -m "Add
+                  nomoji Agent Skill"
                 </code>
                 <button type="button" onclick="copy('git')">
                   Copy
                 </button>
               </div>
             </li>
-            <li>Team members pull and Claude Code auto-detects</li>
+            <li>Team members pull and Claude Code auto-discovers the skill</li>
           </ol>
         </div>
       </details>
@@ -239,15 +252,21 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
         <h2>Related Resources</h2>
         <ul>
           <li>
-            <a href="/setup">Back to Setup Wizard</a>
+            <a href="/integrations/agent-skills">Agent Skills Overview</a>
+          </li>
+          <li>
+            <a href="/setup">Setup Wizard</a>
           </li>
           <li>
             <a href="/docs">API Documentation</a>
           </li>
           <li>
-            <a href="https://docs.claude.com/en/docs/claude-code/sub-agents">
-              Claude Code Subagents Documentation
+            <a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview">
+              Agent Skills Documentation
             </a>
+          </li>
+          <li>
+            <a href="https://agentskills.io">agentskills.io — Open Standard</a>
           </li>
         </ul>
       </div>

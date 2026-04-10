@@ -181,9 +181,10 @@ export const SetupPage = (theme?: string) => {
                   <h3>Download the rules file</h3>
                   <div class="code-block-with-copy">
                     <code id="cursor-step2">
-                      curl https://nomoji.dev/api/cursor-rules/
+                      mkdir -p .cursor/skills/nomoji && curl
+                      https://nomoji.dev/api/skill/
                       <span class="preset-var">default</span> -o
-                      .cursor/rules/nomoji.mdc
+                      .cursor/skills/nomoji/SKILL.md
                     </code>
                     <button
                       type="button"
@@ -196,10 +197,10 @@ export const SetupPage = (theme?: string) => {
                   <p class="help-text">
                     Or{" "}
                     <a
-                      href="/api/cursor-rules/default"
+                      href="/api/skill/default"
                       download
                       class="download-link"
-                      data-base-url="/api/cursor-rules"
+                      data-base-url="/api/skill"
                     >
                       download directly
                     </a>
@@ -232,8 +233,8 @@ export const SetupPage = (theme?: string) => {
             </div>
 
             <div class="next-actions">
-              <a href="/integrations/cursor" class="btn-link">
-                View detailed Cursor guide →
+              <a href="/integrations/agent-skills" class="btn-link">
+                View install guides →
               </a>
             </div>
           </div>
@@ -249,9 +250,9 @@ export const SetupPage = (theme?: string) => {
               <div class="step">
                 <div class="step-number">1</div>
                 <div class="step-content">
-                  <h3>Create the agents directory</h3>
+                  <h3>Create the skills directory</h3>
                   <div class="code-block-with-copy">
-                    <code id="claude-step1">mkdir -p .claude/agents</code>
+                    <code id="claude-step1">mkdir -p .claude/skills/nomoji</code>
                     <button
                       type="button"
                       class="copy-btn"
@@ -266,12 +267,12 @@ export const SetupPage = (theme?: string) => {
               <div class="step">
                 <div class="step-number">2</div>
                 <div class="step-content">
-                  <h3>Download the subagent</h3>
+                  <h3>Download the skill</h3>
                   <div class="code-block-with-copy">
                     <code id="claude-step2">
-                      curl https://nomoji.dev/api/claude/
+                      curl https://nomoji.dev/api/skill/
                       <span class="preset-var">default</span> -o
-                      .claude/agents/nomoji.mdc
+                      .claude/skills/nomoji/SKILL.md
                     </code>
                     <button
                       type="button"
@@ -284,10 +285,10 @@ export const SetupPage = (theme?: string) => {
                   <p class="help-text">
                     Or{" "}
                     <a
-                      href="/api/claude/default"
+                      href="/api/skill/default"
                       download
                       class="download-link"
-                      data-base-url="/api/claude"
+                      data-base-url="/api/skill"
                     >
                       download directly
                     </a>
@@ -300,8 +301,9 @@ export const SetupPage = (theme?: string) => {
                 <div class="step-content">
                   <h3>Claude Code will auto-detect it</h3>
                   <p>
-                    The nomoji subagent will automatically run after code
-                    generation to check for emojis.
+                    The nomoji skill is automatically discovered from
+                    <code>.claude/skills/</code> and applied after code
+                    generation.
                   </p>
                 </div>
               </div>

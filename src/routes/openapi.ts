@@ -297,20 +297,20 @@ export const getRulesRoute = createRoute({
   },
 });
 
-// Get Claude subagent route
-export const getClaudeSubagentRoute = createRoute({
+// Get Agent Skill route (canonical)
+export const getSkillRoute = createRoute({
   method: "get",
-  path: "/api/claude/{userId}",
+  path: "/api/skill/{userId}",
   tags: ["Rules"],
-  summary: "Download Claude Code subagent file",
+  summary: "Download Agent Skill file",
   description:
-    "Download emoji control rules formatted as a Claude Code subagent (.claude/agents/nomoji.mdc)",
+    "Download the nomoji Agent Skill (SKILL.md) for Claude Code and compatible tools. Install to .claude/skills/nomoji/SKILL.md (project) or ~/.claude/skills/nomoji/SKILL.md (user). Compatible with 35+ AI agent tools via the open Agent Skills standard (agentskills.io).",
   request: {
     params: UserIdParamSchema,
   },
   responses: {
     200: {
-      description: "Claude subagent file",
+      description: "Agent Skill file",
       content: {
         "text/markdown": {
           schema: {
@@ -323,7 +323,50 @@ export const getClaudeSubagentRoute = createRoute({
           schema: {
             type: "string",
           },
-          description: 'attachment; filename="nomoji.mdc"',
+          description: 'attachment; filename="SKILL.md"',
+        },
+      },
+    },
+    500: {
+      description: "Server error",
+      content: {
+        "text/plain": {
+          schema: {
+            type: "string",
+          },
+        },
+      },
+    },
+  },
+});
+
+// Get Claude skill route (alias for /api/skill/:userId — kept for compatibility)
+export const getClaudeSubagentRoute = createRoute({
+  method: "get",
+  path: "/api/claude/{userId}",
+  tags: ["Rules"],
+  summary: "Download Claude Code skill file (alias)",
+  description:
+    "Alias for /api/skill/:userId. Downloads the nomoji Agent Skill (SKILL.md). Install to .claude/skills/nomoji/SKILL.md.",
+  request: {
+    params: UserIdParamSchema,
+  },
+  responses: {
+    200: {
+      description: "Agent Skill file",
+      content: {
+        "text/markdown": {
+          schema: {
+            type: "string",
+          },
+        },
+      },
+      headers: {
+        "Content-Disposition": {
+          schema: {
+            type: "string",
+          },
+          description: 'attachment; filename="SKILL.md"',
         },
       },
     },
@@ -345,9 +388,9 @@ export const getCursorRulesRoute = createRoute({
   method: "get",
   path: "/api/cursor-rules/{userId}",
   tags: ["Rules"],
-  summary: "Download Cursor rules file",
+  summary: "Download Cursor skill file (alias)",
   description:
-    "Download emoji control rules formatted for Cursor IDE (.cursor/rules/nomoji.mdc)",
+    "Alias for /api/skill/:userId. Downloads the nomoji Agent Skill (SKILL.md). Install to .cursor/skills/nomoji/SKILL.md.",
   request: {
     params: UserIdParamSchema,
   },
@@ -366,7 +409,7 @@ export const getCursorRulesRoute = createRoute({
           schema: {
             type: "string",
           },
-          description: 'attachment; filename="nomoji.mdc"',
+          description: 'attachment; filename="SKILL.md"',
         },
       },
     },

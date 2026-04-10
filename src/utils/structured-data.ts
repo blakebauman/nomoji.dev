@@ -117,7 +117,7 @@ export function generateFAQStructuredData(): string {
         name: "How do I use nomoji with Cursor?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "For Cursor, create a .cursor/rules directory and download the nomoji rules file: mkdir -p .cursor/rules && curl https://nomoji.dev/api/cursor-rules/default -o .cursor/rules/nomoji.mdc",
+          text: "For Cursor, install the nomoji Agent Skill: mkdir -p .cursor/skills/nomoji && curl https://nomoji.dev/api/skill/default -o .cursor/skills/nomoji/SKILL.md",
         },
       },
       {
@@ -125,7 +125,7 @@ export function generateFAQStructuredData(): string {
         name: "How do I use nomoji with Claude Code?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "For Claude Code, create a .claude/agents directory and download the nomoji subagent: mkdir -p .claude/agents && curl https://nomoji.dev/api/claude/default -o .claude/agents/nomoji.mdc. Claude Code will automatically use the subagent to check for emojis.",
+          text: "For Claude Code, install the nomoji Agent Skill: mkdir -p .claude/skills/nomoji && curl https://nomoji.dev/api/skill/default -o .claude/skills/nomoji/SKILL.md. Claude Code will automatically discover and apply the skill.",
         },
       },
       {
@@ -154,10 +154,10 @@ export function generateFAQStructuredData(): string {
       },
       {
         "@type": "Question",
-        name: "Which AI assistants does nomoji support?",
+        name: "Which AI tools does nomoji support?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "nomoji supports Cursor, Claude Code, GitHub Copilot, Google Gemini CLI, Codeium, Tabnine, and other AI coding assistants through generic templates. It also provides Git hooks for additional enforcement.",
+          text: "nomoji publishes an Agent Skill (SKILL.md) compatible with Claude Code, Cursor, OpenAI Codex, Gemini CLI, and 35+ tools via the open agentskills.io standard. GitHub Copilot and Git hooks are also supported.",
         },
       },
     ],
@@ -196,14 +196,14 @@ export function generateHowToStructuredData(): string {
       },
       {
         "@type": "HowToStep",
-        name: "Download Rules File",
-        text: "For Cursor: curl https://nomoji.dev/api/cursor-rules/default -o .cursor/rules/nomoji.mdc. For Claude Code: curl https://nomoji.dev/api/claude/default -o .claude/agents/nomoji.mdc",
+        name: "Download the Agent Skill",
+        text: "Install the nomoji Agent Skill: mkdir -p .claude/skills/nomoji && curl https://nomoji.dev/api/skill/default -o .claude/skills/nomoji/SKILL.md. Replace .claude with .cursor, .agents, or .gemini for other tools.",
         position: 2,
       },
       {
         "@type": "HowToStep",
-        name: "Place File in Project",
-        text: "Create the appropriate directory (.cursor/rules or .claude/agents) and place the downloaded file there",
+        name: "Place Skill in Project",
+        text: "Create the skills directory for your tool (e.g. .claude/skills/nomoji/) and place SKILL.md there. The tool auto-discovers it.",
         position: 3,
       },
       {
