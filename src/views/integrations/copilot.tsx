@@ -49,9 +49,9 @@ export const CopilotIntegrationPage = (theme?: string) => (
             </p>
             <div class="code-with-copy">
               <code id="cmd2">{`{
-  "github.copilot.advanced": {
-    "customInstructions": "Do not use emojis in code, documentation, console output, CLI tools, logging, or commit messages."
-  }
+  "github.copilot.chat.codeGeneration.instructions": [
+    { "text": "Do not use emojis in code, documentation, console output, CLI tools, logging, or commit messages." }
+  ]
 }`}</code>
               <button type="button" onclick="copy('cmd2')">
                 Copy
@@ -141,40 +141,31 @@ Source: nomoji.dev`}</code>
         <p>Get rules directly from nomoji.dev API:</p>
         <div class="preset-grid">
           <div class="preset-option">
-            <h3>Strict Mode</h3>
-            <p>No emojis anywhere</p>
+            <h3>Default</h3>
+            <p>Standard no-emoji rules</p>
             <div class="code-with-copy">
-              <code id="strict">
-                curl https://nomoji.dev/api/template/strict-user/copilot
+              <code id="default-preset">
+                curl https://nomoji.dev/api/template/default/copilot
               </code>
-              <button type="button" onclick="copy('strict')">
+              <button type="button" onclick="copy('default-preset')">
                 Copy
               </button>
             </div>
           </div>
           <div class="preset-option">
-            <h3>Moderate Mode</h3>
-            <p>Limited emojis, balanced approach</p>
+            <h3>Your Config</h3>
+            <p>Personalized rules based on your setup</p>
             <div class="code-with-copy">
-              <code id="moderate">
-                curl https://nomoji.dev/api/template/moderate-user/copilot
+              <code id="custom-preset">
+                curl https://nomoji.dev/api/template/YOUR-USER-ID/copilot
               </code>
-              <button type="button" onclick="copy('moderate')">
+              <button type="button" onclick="copy('custom-preset')">
                 Copy
               </button>
             </div>
-          </div>
-          <div class="preset-option">
-            <h3>Relaxed Mode</h3>
-            <p>Emojis in UI only</p>
-            <div class="code-with-copy">
-              <code id="relaxed">
-                curl https://nomoji.dev/api/template/relaxed-user/copilot
-              </code>
-              <button type="button" onclick="copy('relaxed')">
-                Copy
-              </button>
-            </div>
+            <p class="note" style="margin-top:0.75rem">
+              Get your user ID from <a href="/setup">the setup wizard</a>.
+            </p>
           </div>
         </div>
       </div>

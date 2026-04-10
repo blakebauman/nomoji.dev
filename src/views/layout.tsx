@@ -1302,6 +1302,7 @@ export const Layout = (props: {
 
     .preset-grid {
       display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 1.5rem;
       margin-top: 1rem;
     }
