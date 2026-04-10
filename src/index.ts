@@ -18,8 +18,6 @@ import {
   apiInfoRoute,
   applyPresetRoute,
   deleteUserConfigRoute,
-  getClaudeSubagentRoute,
-  getCursorRulesRoute,
   getJsonRoute,
   getPresetsRoute,
   getRulesRoute,
@@ -33,7 +31,6 @@ import {
 } from "./routes/openapi";
 import {
   generateJSON,
-  generateLegacyCursorRules,
   generateRules,
   generateTemplate,
 } from "./rules/generator";
@@ -465,21 +462,15 @@ app.openapi(apiInfoRoute, (c) => {
       skill: "/api/skill/:userId",
       config: "/api/config/:userId",
       rules: "/api/rules/:userId",
-      claude: "/api/claude/:userId (alias for /api/skill/:userId)",
-      cursorRules: "/api/cursor-rules/:userId",
-      cursorrules: "/api/cursorrules/:userId (deprecated)",
       template: "/api/template/:userId/:assistant",
       presets: "/api/presets",
       analyze: "/api/analyze",
       shared: "/api/shared/:configId",
     },
     assistants: {
-      skill:
-        "Agent Skills (35+ tools) - Download SKILL.md to .claude/skills/nomoji/",
-      claude: "Claude Code - alias for /api/skill/:userId",
-      cursor: "Cursor - alias for /api/skill/:userId",
+      skill: "Agent Skills (35+ tools) - Download SKILL.md",
       copilot: "GitHub Copilot - Get instructions format",
-      gemini: "Google Gemini CLI - Get configuration instructions",
+      generic: "Plain text rules for any tool",
     },
   });
 });
@@ -635,57 +626,6 @@ app.openapi(getSkillRoute, async (c) => {
     return c.text(skill);
   } catch (_error) {
     return c.text("Error generating Agent Skill file", 500);
-  }
-});
-
-app.openapi(getClaudeSubagentRoute, async (c) => {
-  const { userId } = c.req.valid("param");
-
-  try {
-    const config = await getOrCreateUserConfig(c.env, userId);
-    const skill = generateSkill(config, userId);
-
-    c.header("Content-Disposition", 'attachment; filename="SKILL.md"');
-    c.header("Content-Type", "text/markdown");
-
-    return c.text(skill);
-  } catch (_error) {
-    return c.text("Error generating Agent Skill file", 500);
-  }
-});
-
-app.openapi(getCursorRulesRoute, async (c) => {
-  const { userId } = c.req.valid("param");
-
-  try {
-    const config = await getOrCreateUserConfig(c.env, userId);
-    const skill = generateSkill(config, userId);
-
-    c.header("Content-Disposition", 'attachment; filename="SKILL.md"');
-    c.header("Content-Type", "text/markdown");
-
-    return c.text(skill);
-  } catch (_error) {
-    return c.text("Error generating skill file", 500);
-  }
-});
-
-// Legacy cursorrules endpoint (non-OpenAPI, deprecated)
-app.get("/api/cursorrules/:userId", async (c) => {
-  const userId = c.req.param("userId");
-
-  try {
-    const config = await getOrCreateUserConfig(c.env, userId);
-    const rules = generateLegacyCursorRules(config);
-
-    c.header("Content-Disposition", 'attachment; filename=".cursorrules"');
-    c.header("Content-Type", "text/plain");
-    c.header("X-Deprecated", "true");
-    c.header("X-Replacement-Endpoint", "/api/cursor-rules/:userId");
-
-    return c.text(rules);
-  } catch (_error) {
-    return c.text("Error generating .cursorrules file", 500);
   }
 });
 

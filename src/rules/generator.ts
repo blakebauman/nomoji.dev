@@ -102,11 +102,3 @@ export function generateJSON(config: NomojiConfig): string {
     2,
   );
 }
-
-/**
- * Legacy .cursorrules stub — kept only so the deprecated endpoint still
- * returns something informative.
- */
-export function generateLegacyCursorRules(config: NomojiConfig): string {
-  return `# DEPRECATED — use the Agent Skill instead\n# Install: mkdir -p .cursor/skills/nomoji && curl https://nomoji.dev/skill -o .cursor/skills/nomoji/SKILL.md\n\nVersion: ${config.version}\n`;
-}
