@@ -838,6 +838,10 @@ EOF`}</pre>
         margin: 3rem 0;
       }
 
+      .preset-selector h2 {
+        margin-bottom: 1.5rem;
+      }
+
       .preset-selector h3 {
         text-align: center;
         margin-bottom: 1.5rem;
