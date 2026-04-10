@@ -278,20 +278,5 @@ export const HowPage = (theme?: string) => (
         </a>
       </div>
     </main>
-
-    <script>{`
-      document.querySelectorAll('.switcher-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.switcher-btn').forEach(b => {
-            b.classList.remove('active');
-            b.setAttribute('aria-selected', 'false');
-          });
-          document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
-          btn.classList.add('active');
-          btn.setAttribute('aria-selected', 'true');
-          document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
-        });
-      });
-    `}</script>
   </Layout>
 );

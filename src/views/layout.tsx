@@ -1901,8 +1901,26 @@ export const Layout = (props: {
       });
     };
 
-    // Copy to clipboard functionality for homepage code blocks
     document.addEventListener('DOMContentLoaded', function() {
+      // Tool switcher tabs (.switcher-btn / .tool-panel)
+      document.querySelectorAll('.switcher-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var panel = btn.getAttribute('data-panel');
+          document.querySelectorAll('.switcher-btn').forEach(function(b) {
+            b.classList.remove('active');
+            b.setAttribute('aria-selected', 'false');
+          });
+          document.querySelectorAll('.tool-panel').forEach(function(p) {
+            p.classList.remove('active');
+          });
+          btn.classList.add('active');
+          btn.setAttribute('aria-selected', 'true');
+          var target = document.getElementById('panel-' + panel);
+          if (target) target.classList.add('active');
+        });
+      });
+
+      // Copy to clipboard functionality for homepage code blocks
       const codeBlocks = document.querySelectorAll('.code-block');
       
       codeBlocks.forEach(function(block) {

@@ -768,9 +768,8 @@ EOF`}</pre>
 
       <style>{`
       .setup-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem 1rem;
+        width: 100%;
+        padding: clamp(2rem, 5vw, 6rem);
       }
 
       .breadcrumb-container {
