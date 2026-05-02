@@ -34,20 +34,18 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
         <h2>Quick Setup</h2>
         <div class="setup-box">
           <div class="command-step">
-            <span class="step-label">1. Create skills directory</span>
+            <span class="step-label">1. Add the nomoji plugin marketplace</span>
             <div class="code-with-copy">
-              <code id="cmd1">mkdir -p .claude/skills/nomoji</code>
+              <code id="cmd1">/plugin marketplace add blakebauman/nomoji</code>
               <button type="button" onclick="copy('cmd1')">
                 Copy
               </button>
             </div>
           </div>
           <div class="command-step">
-            <span class="step-label">2. Download skill</span>
+            <span class="step-label">2. Install the plugin</span>
             <div class="code-with-copy">
-              <code id="cmd2">
-                curl https://nomoji.dev/skill -o .claude/skills/nomoji/SKILL.md
-              </code>
+              <code id="cmd2">/plugin install nomoji@nomoji</code>
               <button type="button" onclick="copy('cmd2')">
                 Copy
               </button>
@@ -55,9 +53,29 @@ export const ClaudeCodeIntegrationPage = (theme?: string) => (
           </div>
           <div class="command-step">
             <span class="step-label">3. Done!</span>
-            <p>Claude Code discovers and loads the skill automatically</p>
+            <p>
+              Claude Code loads the skill automatically. Update later with{" "}
+              <code>/plugin marketplace update nomoji</code>.
+            </p>
           </div>
         </div>
+        <details class="accordion">
+          <summary>
+            <h2>Prefer a manual install?</h2>
+          </summary>
+          <div class="accordion-content">
+            <p>Drop the SKILL.md directly into your project:</p>
+            <div class="code-with-copy">
+              <code id="cmd-manual">
+                mkdir -p .claude/skills/nomoji && curl https://nomoji.dev/skill
+                -o .claude/skills/nomoji/SKILL.md
+              </code>
+              <button type="button" onclick="copy('cmd-manual')">
+                Copy
+              </button>
+            </div>
+          </div>
+        </details>
       </div>
 
       <div class="content-section">

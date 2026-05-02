@@ -1,0 +1,13 @@
+{
+  "name": "nomoji",
+  "version": "1.0.0",
+  "description": "Enforce no-emoji standards in AI-generated code, docs, logs, and commits.",
+  "author": {
+    "name": "nomoji.dev",
+    "url": "https://nomoji.dev"
+  },
+  "homepage": "https://nomoji.dev",
+  "repository": "https://github.com/nomoji/nomoji.dev",
+  "license": "MIT",
+  "keywords": ["emoji", "linting", "style", "code-quality", "documentation"]
+}

@@ -50,13 +50,35 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
             <span class="badge badge-recommended">Recommended</span>
           </div>
           <p>
-            Skills live in <code>.claude/skills/</code>. The{" "}
-            <code>allowed-tools</code> frontmatter pre-approves Read, Grep,
+            Install via the Claude Code plugin marketplace, or drop the{" "}
+            <code>SKILL.md</code> directly into <code>.claude/skills/</code>.
+            The <code>allowed-tools</code> frontmatter pre-approves Read, Grep,
             Glob, and Bash so nomoji runs without permission prompts.
           </p>
           <div class="install-tabs">
             <div class="install-option">
-              <h4>Project-level</h4>
+              <h4>Plugin marketplace (recommended)</h4>
+              <p>Run these two commands inside Claude Code:</p>
+              <div class="code-with-copy">
+                <code id="cc-mp-add">
+                  /plugin marketplace add blakebauman/nomoji
+                </code>
+                <button type="button" onclick="copy('cc-mp-add')">
+                  Copy
+                </button>
+              </div>
+              <div class="code-with-copy">
+                <code id="cc-mp-install">/plugin install nomoji@nomoji</code>
+                <button type="button" onclick="copy('cc-mp-install')">
+                  Copy
+                </button>
+              </div>
+              <p class="note">
+                Updates land via <code>/plugin marketplace update nomoji</code>.
+              </p>
+            </div>
+            <div class="install-option">
+              <h4>Project-level (manual)</h4>
               <div class="code-with-copy">
                 <code id="cc-project">
                   mkdir -p .claude/skills/nomoji && curl
@@ -68,7 +90,7 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
               </div>
             </div>
             <div class="install-option">
-              <h4>User-level (all projects)</h4>
+              <h4>User-level (manual, all projects)</h4>
               <div class="code-with-copy">
                 <code id="cc-user">
                   mkdir -p ~/.claude/skills/nomoji && curl
@@ -101,6 +123,10 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
           <p>
             Skills live in <code>.cursor/skills/</code>. Cursor auto-discovers
             them at startup and makes them available in Agent chat.
+          </p>
+          <p class="note">
+            Cursor does not yet expose a plugin-install slash command for skills
+            — install via filesystem or paste the URL into Agent chat.
           </p>
           <div class="install-tabs">
             <div class="install-option">
@@ -147,6 +173,10 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
             <code>~/.agents/skills/</code> (user). The <code>.agents/</code>{" "}
             path takes precedence over tool-specific directories.
           </p>
+          <p class="note">
+            Codex installs skills from the filesystem — there is no{" "}
+            <code>codex install</code> command today.
+          </p>
           <div class="install-tabs">
             <div class="install-option">
               <h4>Project-level</h4>
@@ -188,21 +218,28 @@ export const AgentSkillsIntegrationPage = (theme?: string) => (
           </div>
           <p>
             Gemini CLI supports both <code>.agents/skills/</code> and{" "}
-            <code>.gemini/skills/</code>. Install via the built-in{" "}
-            <code>gemini skills</code> command or manually.
+            <code>.gemini/skills/</code>. Install from GitHub via the built-in{" "}
+            <code>gemini skills install</code> command or manually.
           </p>
           <div class="install-tabs">
             <div class="install-option">
-              <h4>Via CLI (recommended)</h4>
+              <h4>Plugin install (recommended)</h4>
+              <p>Installs the skill from GitHub at user scope:</p>
               <div class="code-with-copy">
                 <code id="gemini-cli">
-                  gemini skills install https://github.com/nomoji/nomoji.dev
-                  --path examples/agent-skills/nomoji
+                  gemini skills install
+                  https://github.com/blakebauman/nomoji.git --path
+                  marketplace/nomoji --consent
                 </code>
                 <button type="button" onclick="copy('gemini-cli')">
                   Copy
                 </button>
               </div>
+              <p class="note">
+                Add <code>--scope workspace</code> to install into the current
+                project instead of <code>~/.gemini/skills/</code>. List with{" "}
+                <code>/skills list</code>.
+              </p>
             </div>
             <div class="install-option">
               <h4>Manual (project-level)</h4>

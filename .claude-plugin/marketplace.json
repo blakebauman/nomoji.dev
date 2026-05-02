@@ -1,0 +1,18 @@
+{
+  "name": "nomoji",
+  "owner": {
+    "name": "Blake Bauman",
+    "email": "blake.bauman@gmail.com"
+  },
+  "description": "Enforce no-emoji standards across AI-generated code, docs, logs, and commits.",
+  "plugins": [
+    {
+      "name": "nomoji",
+      "source": "./marketplace/claude-plugin",
+      "description": "Strict no-emoji Agent Skill for Claude Code.",
+      "version": "1.0.0",
+      "category": "code-quality",
+      "tags": ["emoji", "linting", "style", "documentation", "agent-skills"]
+    }
+  ]
+}
