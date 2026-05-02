@@ -17,6 +17,7 @@
     "lint:check": "biome lint .",
     "check": "biome check --write .",
     "check:ci": "biome ci .",
+    "build:marketplace": "node scripts/build-marketplace.mjs",
     "prepare": "lefthook install",
     "hooks:install": "lefthook install",
     "hooks:uninstall": "lefthook uninstall"
