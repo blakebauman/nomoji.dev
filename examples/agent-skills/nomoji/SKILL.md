@@ -16,6 +16,7 @@ Prevent emoji characters in all AI-generated content to maintain professional, a
 - **Logging** (strict): No emojis in application logs, error messages, or debug output.
 - **Code comments** (strict): No emojis in inline comments, JSDoc, or docstrings.
 - **Git commits** (strict): No emojis in commit messages, PR titles, or descriptions.
+- **User interface** (strict): No emojis in UI text strings or user-facing messages.
 
 ## Validation
 
@@ -44,10 +45,10 @@ grep -rn --include="*.{js,ts,jsx,tsx,py,md,txt,sh}" -P "[\x{1F300}-\x{1FFFF}]|[\
 - logging
 - comments
 - commit messages
+- user interface
 
 Severity: strict
 
 ## Configuration
 
 Managed at https://nomoji.dev/setup
-Personalized skills: https://nomoji.dev/api/skill/YOUR-USER-ID
