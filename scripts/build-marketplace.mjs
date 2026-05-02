@@ -4,9 +4,10 @@
  *
  * The Agent Skills standard (https://agentskills.io) means one SKILL.md
  * works across 37+ AI tools. This script fetches that single canonical file
- * and writes it into both marketplace bundles:
- *   - marketplace/nomoji/SKILL.md       (universal: Cursor, Codex, Gemini, …)
+ * and writes it into all bundles that ship the skill:
+ *   - marketplace/nomoji/SKILL.md                       (universal bundle)
  *   - marketplace/claude-plugin/skills/nomoji/SKILL.md  (Claude plugin wrap)
+ *   - examples/agent-skills/nomoji/SKILL.md             (docs example)
  *
  * KNOWN GAP: the API has no preset-by-name endpoint. `/api/skill/:userId`
  * looks up KV by userId and falls back to DEFAULT_CONFIG when missing.
@@ -37,6 +38,7 @@ const PLUGIN_COPY = resolve(
   ROOT,
   "marketplace/claude-plugin/skills/nomoji/SKILL.md",
 );
+const EXAMPLE_COPY = resolve(ROOT, "examples/agent-skills/nomoji/SKILL.md");
 
 const url = `${BASE_URL}/api/skill/${USER_ID}`;
 process.stdout.write(`fetching ${url} ... `);
@@ -55,5 +57,9 @@ process.stdout.write(`wrote ${PRIMARY}\n`);
 await mkdir(dirname(PLUGIN_COPY), { recursive: true });
 await copyFile(PRIMARY, PLUGIN_COPY);
 process.stdout.write(`copied to ${PLUGIN_COPY}\n`);
+
+await mkdir(dirname(EXAMPLE_COPY), { recursive: true });
+await copyFile(PRIMARY, EXAMPLE_COPY);
+process.stdout.write(`copied to ${EXAMPLE_COPY}\n`);
 
 console.log("\nmarketplace bundles regenerated");
